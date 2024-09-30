@@ -21,7 +21,7 @@ private:
 
 	Vector2 AvoidMouse();
 
-	float minimumDistance = 20;
+	float minimumDistance = 30;
 	float separateIntensity = 75;
 
 	float boidSpeed = 500;
