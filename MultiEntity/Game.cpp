@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "BoidActor.h"
 #include <iostream>
+#include <stdlib.h>     
+#include <time.h>       
 
 
 
@@ -11,13 +13,16 @@ Game::Game()
 
 void Game::load()
 {
-	int ScreenSize = 800;
-	int boidCount = 5;
-	float PlaceOffset = float(800) / (boidCount+1);
+
+	int display = GetCurrentMonitor();
+	int ScreenSize = 1000;
+	int boidCount = 25;
+	float PlaceOffsetX = GetMonitorWidth(display) / (boidCount+1);
+	float PlaceOffsetY = GetMonitorHeight(display) / (boidCount + 1);
 	for (int i = 0; i < boidCount; i++) {
 		for (int j = 0; j < boidCount; j++) {
 			BoidActor* boid = new BoidActor();
-			boid->setPosition(Vector2{ PlaceOffset * (i + 1),PlaceOffset * (j + 1) });
+			boid->setPosition(Vector2{float(i*PlaceOffsetX),float(j*PlaceOffsetY) });
 			boidList.push_back(boid);
 		}
 	}

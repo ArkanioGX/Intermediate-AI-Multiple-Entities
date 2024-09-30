@@ -11,6 +11,7 @@ protected:
 public:
 	Vector2 pos = Vector2{ 0,0 };
 	Vector2 scale = Vector2{ 100,100 };
+	float angle = 0;
 
 public:
 	Actor();

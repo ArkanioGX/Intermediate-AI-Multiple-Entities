@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "raylib.h"
 #include <vector>
+
 class BoidComponent : public Component
 {
 public:
@@ -10,14 +11,32 @@ public:
 	void update(float dt) override;
 
 private:
-	Vector2 forward = { 100,100 };
+	Vector2 forward;
 
 	Vector2 Separate(const std::vector<class BoidActor*>& others);
 	Vector2 Align(const std::vector<class BoidActor*>& others);
+	Vector2 Group(const std::vector<class BoidActor*>& others);
+
+	Vector2 Bait();
+
+	Vector2 AvoidMouse();
 
 	float minimumDistance = 20;
-	float separateIntensity = 10;
+	float separateIntensity = 75;
 
-	float maxPerceiveDistance = 150;
+	float boidSpeed = 500;
+
+	float maxPerceiveDistance = 75;
+	float alignIntensity = 15;
+
+	float cohesionRadius = 100;
+	float groupIntensity = 5;
+
+	float baitIntensity = 5;
+
+	float mouseRadius = 200;
+	float avoidMouseIntensity = 500;
+
+	float maxSteer = 10;
 };
 

@@ -5,5 +5,5 @@ BoidActor::BoidActor():
 	Actor()
 {
 	boidComp = new BoidComponent(this);
-	texComp = new TextureComponent(this);
+	texComp = new TextureComponent(this,"Images/BoidSprite.png");
 }

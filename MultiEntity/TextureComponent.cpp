@@ -1,5 +1,6 @@
 #include "TextureComponent.h"
 #include "Actor.h"
+#include "raymath.h"
 
 TextureComponent::TextureComponent(Actor* owner, const char* imgPath) :
 	RenderComponent(owner)
@@ -15,7 +16,10 @@ void TextureComponent::draw()
 	Actor* own = getOwner();
 	Vector2 pos = own->getPosition();
 	Vector2 scale = own->getScale();
+	float angle = own->angle;
+	
+	int display = GetCurrentMonitor();
 
-	DrawTexture(tex, pos.x - (tex.width / 2), pos.y - (tex.height / 2), Color{ (unsigned char)((pos.x / 800) * 255), (unsigned char)255,(unsigned char)((pos.y / 800) * 255), (unsigned char)255 });
+	DrawTextureEx(tex, Vector2Subtract(pos, Vector2{ float(tex.width),float(tex.height) }), angle, 1, Color{ (unsigned char)((pos.x / (GetMonitorWidth(display)+50)) * 255), (unsigned char)255,(unsigned char)((pos.y / (GetMonitorHeight(display)+50)) * 255), (unsigned char)255 });
 }
 

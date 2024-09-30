@@ -2,9 +2,12 @@
 #include "Game.h"
 
 int main() {
-    const int screenWidth = 800;
-    const int screenHeight = 800;
+    const int screenWidth = 1000;
+    const int screenHeight = 1000;
     InitWindow(screenWidth, screenHeight, "Boid Gamingz");
+    int display = GetCurrentMonitor();
+    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+    ToggleFullscreen();
     SetTargetFPS(60);
 
     Game::instance().load();
