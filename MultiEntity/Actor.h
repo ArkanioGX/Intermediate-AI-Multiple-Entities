@@ -44,6 +44,7 @@ public:
 
 	bool operator==(const Actor& act2);
 	
+	int getActorID() { return actorID; }
 
 private:
 	static int NextActorID;

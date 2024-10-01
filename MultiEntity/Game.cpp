@@ -17,7 +17,7 @@ void Game::load()
 	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
 
 	int ScreenSize = 1000;
-	int boidCount = 10;
+	int boidCount = 20;
 	float PlaceOffsetX = 1920 / (boidCount+1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
 	for (int i = 0; i < boidCount; i++) {
@@ -33,7 +33,7 @@ void Game::load()
 
 void Game::loop()
 {
-	float dt = 1.f / 60;
+	float dt =GetFrameTime();
 	for (int i = 0; i < actorsList.size(); i++) {
 		actorsList[i]->update(dt);
 	}
@@ -46,6 +46,7 @@ void Game::draw()
 	for (int i = 0; i < renderComponentList.size(); i++) {
 		renderComponentList[i]->draw();
 	}
+	DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 22, RAYWHITE);
 	for (BoidActor* boid : boidList) {
 		//DrawCircleLinesV(boid->getPosition(), 55, GREEN);
 	}

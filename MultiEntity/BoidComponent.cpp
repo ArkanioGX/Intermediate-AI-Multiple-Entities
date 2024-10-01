@@ -6,6 +6,8 @@
 #include "iostream"
 #include "raymath.h"
 #include "math.h"
+#include "BoidGroupManager.h"
+#include "TextureComponent.h"
 
 BoidComponent::BoidComponent(Actor* owner):
 	Component(owner)
@@ -15,28 +17,48 @@ BoidComponent::BoidComponent(Actor* owner):
 
 void BoidComponent::update(float dt)
 {
+	if (getOwner()->getActorID() == 5) {
+		getOwner()->getComponent<TextureComponent*>()->color = GREEN;
+		Vector2 gPos = BoidGroupManager::Instance()->getGridPos(getOwner()->getPosition());
+		//std::cout << " x : " << gPos.x << " | y : " << gPos.y << std::endl;
+		//std::cout << (Vector2Equals(gridParent, gPos) == 0  ? "New Grid !" : "Same Grid") << std::endl;
+		if (Vector2Equals(gridParent, gPos) == 0) {
+			BoidGroupManager::Instance()->AddChild(static_cast<BoidActor*>(getOwner()), gPos);
+		}
+		gridParent = gPos;
+	}
+
+
 	Vector2 nextMove = forward;
 	Vector2 separateDir = Vector2Zero();;
 	std::vector<class BoidActor*>& boidsList = Game::instance().boidList;
+
+	int boidAlignPerceived = 0;
+	Vector2 avgForce = Vector2Zero();
+
+	int boidGroupPerceived = 0;
+	Vector2 avgPos = Vector2Zero();
+
 	for (BoidActor* boid : boidsList) {
 		if (boid == getOwner()) {
 			continue;
 		}
 		separateDir = Vector2Add(separateDir, Separate(boid));
+		Align(boid,avgForce,boidAlignPerceived);
+		Group(boid,avgPos,boidGroupPerceived);
 	}
 
-	nextMove = Vector2Add(nextMove, Vector2Scale(separateDir,separateIntensity));
-
-	Vector2 v2 = Align(getOwner()->getGame()->boidList);
-	nextMove = Vector2Add(nextMove, Vector2Scale(v2,alignIntensity));
-
-	v2 = Group(getOwner()->getGame()->boidList);
-	nextMove = Vector2Add(nextMove, Vector2Scale(v2, groupIntensity));
+	nextMove = Vector2Add(nextMove, Vector2Scale(separateDir, separateIntensity));
+	boidAlignPerceived = std::max(1, boidAlignPerceived);
+	nextMove = Vector2Add(nextMove, Vector2Scale(Vector2{ avgForce.x / boidAlignPerceived,avgForce.y / boidAlignPerceived }, alignIntensity));
+	boidGroupPerceived = std::max(1, boidGroupPerceived);
+	Vector2 forceToAvgPos = Vector2Normalize(Vector2Subtract(Vector2{ avgPos.x / boidGroupPerceived,avgPos.y / boidGroupPerceived }, getOwner()->getPosition()));
+	nextMove = Vector2Add(nextMove, Vector2Scale(forceToAvgPos, groupIntensity));
 
 	//v2 = Bait();
 	//nextMove = Vector2Add(nextMove, Vector2Scale(v2, baitIntensity));
 
-	v2 = AvoidMouse();
+	Vector2 v2 = AvoidMouse();
 	nextMove = Vector2Add(nextMove, Vector2Scale(v2, avoidMouseIntensity));
 
 	nextMove = Vector2Normalize(nextMove);
@@ -84,51 +106,32 @@ Vector2 BoidComponent::Separate(BoidActor* boid)
 	return force;
 }
 
-Vector2 BoidComponent::Align(const std::vector<class BoidActor*>& others)
+void BoidComponent::Align(BoidActor* boid, Vector2& avgForce, int& boidPerceived)
 {
-	Vector2 force = { 0,0 };
-	int boidPerceived = 0;
 	Vector2 boidPos = getOwner()->pos;
-	for (BoidActor* boid : others) {
-		if (boid == getOwner()) {
-			continue;
-		}
+
 		Vector2 otherBoidPos = boid->pos;
 
 		float distance = Vector2Distance(boidPos, otherBoidPos);
 
 		if (distance < maxPerceiveDistance) {
 			BoidComponent* othComp = boid->getComponent<BoidComponent*>();
-			force = Vector2Add(force,othComp->forward);
+			avgForce = Vector2Add(avgForce,othComp->forward);
 			boidPerceived++;
 		}
-	}
-	if (boidPerceived == 0) { return Vector2{ 0,0 }; }
-	return Vector2{force.x/boidPerceived,force.y/boidPerceived};
 }
 
-Vector2 BoidComponent::Group(const std::vector<class BoidActor*>& others)
+void BoidComponent::Group(BoidActor* boid, Vector2& avgPos, int& boidPerceived)
 {
-	Vector2 avgPos = { 0,0 };
-	int boidPerceived = 0;
 	Vector2 boidPos = getOwner()->pos;
-	for (BoidActor* boid : others) {
-		if (boid == getOwner()) {
-			continue;
-		}
-		Vector2 otherBoidPos = boid->pos;
+	Vector2 otherBoidPos = boid->pos;
 
-		float distance = Vector2Distance(boidPos, otherBoidPos);
+	float distance = Vector2Distance(boidPos, otherBoidPos);
 
-		if (distance < cohesionRadius) {
-			avgPos = Vector2Add(avgPos, otherBoidPos);
-			boidPerceived++;
-		}
+	if (distance < cohesionRadius) {
+		avgPos = Vector2Add(avgPos, otherBoidPos);
+		boidPerceived++;
 	}
-	if (boidPerceived == 0) { return Vector2{ 0,0 }; }
-	avgPos = Vector2{ avgPos.x / boidPerceived,avgPos.y / boidPerceived };
-	Vector2 force = Vector2Normalize(Vector2Subtract(avgPos, boidPos));
-	return force;
 }
 
 Vector2 BoidComponent::Bait()

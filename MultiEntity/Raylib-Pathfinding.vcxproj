@@ -141,6 +141,7 @@
     <ClCompile Include="Assets.cpp" />
     <ClCompile Include="BoidActor.cpp" />
     <ClCompile Include="BoidComponent.cpp" />
+    <ClCompile Include="BoidGroupManager.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Assets.h" />
     <ClInclude Include="BoidActor.h" />
     <ClInclude Include="BoidComponent.h" />
+    <ClInclude Include="BoidGroupManager.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="RenderComponent.h" />

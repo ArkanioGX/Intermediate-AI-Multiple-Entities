@@ -8,7 +8,6 @@ int main() {
     int display = GetCurrentMonitor();
     SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
     ToggleFullscreen();
-    SetTargetFPS(60);
 
     Game::instance().load();
 
