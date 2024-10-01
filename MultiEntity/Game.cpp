@@ -3,7 +3,8 @@
 #include "BoidActor.h"
 #include <iostream>
 #include <stdlib.h>     
-#include <time.h>       
+#include <time.h>  
+#include "Assets.h"
 
 
 
@@ -13,9 +14,10 @@ Game::Game()
 
 void Game::load()
 {
+	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
 
 	int ScreenSize = 1000;
-	int boidCount = 30;
+	int boidCount = 25;
 	float PlaceOffsetX = 1920 / (boidCount+1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
 	for (int i = 0; i < boidCount; i++) {

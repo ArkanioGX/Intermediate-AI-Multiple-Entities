@@ -1,14 +1,13 @@
 #include "TextureComponent.h"
 #include "Actor.h"
 #include "raymath.h"
+#include "Assets.h"
 
-TextureComponent::TextureComponent(Actor* owner, const char* imgPath) :
-	RenderComponent(owner)
+
+TextureComponent::TextureComponent(Actor* owner, Texture2D& texT):
+	RenderComponent(owner),
+	tex(texT)
 {
-	if (strcmp(imgPath, "") == 0) {
-		imgPath = "Images/PlaceholderTexture.png";
-	}
-	tex = LoadTexture(imgPath);
 }
 
 void TextureComponent::draw()

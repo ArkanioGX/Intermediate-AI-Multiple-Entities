@@ -4,9 +4,9 @@
 class TextureComponent : public RenderComponent
 {
 public:
-	Texture2D tex;
+	Texture2D& tex;
 
-	TextureComponent(class Actor* owner, const char* imgPath = "");
+	TextureComponent(class Actor* owner, Texture2D& texT);
 
 	void draw() override;
 };
