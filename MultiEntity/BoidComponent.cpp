@@ -16,10 +16,18 @@ BoidComponent::BoidComponent(Actor* owner):
 void BoidComponent::update(float dt)
 {
 	Vector2 nextMove = forward;
-	Vector2 v2 = Separate(getOwner()->getGame()->boidList);
-	nextMove = Vector2Add(nextMove, Vector2Scale(v2,separateIntensity));
+	Vector2 separateDir = Vector2Zero();;
+	std::vector<class BoidActor*>& boidsList = Game::instance().boidList;
+	for (BoidActor* boid : boidsList) {
+		if (boid == getOwner()) {
+			continue;
+		}
+		separateDir = Vector2Add(separateDir, Separate(boid));
+	}
 
-	v2 = Align(getOwner()->getGame()->boidList);
+	nextMove = Vector2Add(nextMove, Vector2Scale(separateDir,separateIntensity));
+
+	Vector2 v2 = Align(getOwner()->getGame()->boidList);
 	nextMove = Vector2Add(nextMove, Vector2Scale(v2,alignIntensity));
 
 	v2 = Group(getOwner()->getGame()->boidList);
@@ -44,25 +52,20 @@ void BoidComponent::update(float dt)
 	getOwner()->angle = Vector2Angle(Vector2{ 1,0 }, forward)*180/M_PI;
 }
 
-Vector2 BoidComponent::Separate(const std::vector<class BoidActor*>& others)
+Vector2 BoidComponent::Separate(BoidActor* boid)
 {
 
-
-	Vector2 force = { 0,0 };
+	Vector2 force = Vector2Zero();
 	Vector2 boidPos = getOwner()->pos;
-	for (BoidActor* boid : others) {
-		if (boid == getOwner()) {
-			continue;
-		}
-		Vector2 otherBoidPos = boid->pos;
 
-		Vector2 boidVector{ boidPos.x - otherBoidPos.x,boidPos.y - otherBoidPos.y };
+	Vector2 otherBoidPos = boid->pos;
 
-		float distance = Vector2Distance(boidPos, otherBoidPos);
+	Vector2 boidVector{ boidPos.x - otherBoidPos.x,boidPos.y - otherBoidPos.y };
 
-		if (distance < minimumDistance) {
-			force = Vector2Add(Vector2Normalize(boidVector),force);
-		}
+	float distance = Vector2Distance(boidPos, otherBoidPos);
+
+	if (distance < minimumDistance) {
+		force = Vector2Normalize(boidVector);
 	}
 	//Border Detection
 	if (boidPos.x < minimumDistance) {

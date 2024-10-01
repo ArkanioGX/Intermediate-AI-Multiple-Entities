@@ -19,6 +19,6 @@ void TextureComponent::draw()
 	
 	int display = GetCurrentMonitor();
 
-	DrawTextureEx(tex, Vector2Subtract(pos, Vector2{ float(tex.width),float(tex.height) }), angle, 1, Color{ (unsigned char)((pos.x / (GetMonitorWidth(display)+50)) * 255), (unsigned char)255,(unsigned char)((pos.y / (GetMonitorHeight(display)+50)) * 255), (unsigned char)255 });
+	DrawTextureEx(tex, Vector2Subtract(pos, Vector2{ float(tex.width),float(tex.height) }), angle, scale.x, Color{ (unsigned char)((pos.x / (GetMonitorWidth(display)+50)) * 255), (unsigned char)255,(unsigned char)((pos.y / (GetMonitorHeight(display)+50)) * 255), (unsigned char)255 });
 }
 

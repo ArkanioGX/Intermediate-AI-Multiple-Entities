@@ -13,7 +13,7 @@ public:
 private:
 	Vector2 forward;
 
-	Vector2 Separate(const std::vector<class BoidActor*>& others);
+	Vector2 Separate(class BoidActor* boid);
 	Vector2 Align(const std::vector<class BoidActor*>& others);
 	Vector2 Group(const std::vector<class BoidActor*>& others);
 
@@ -21,10 +21,10 @@ private:
 
 	Vector2 AvoidMouse();
 
-	float minimumDistance = 30;
+	float minimumDistance = 40;
 	float separateIntensity = 75;
 
-	float boidSpeed = 500;
+	float boidSpeed = 350;
 
 	float maxPerceiveDistance = 75;
 	float alignIntensity = 15;
@@ -37,6 +37,6 @@ private:
 	float mouseRadius = 200;
 	float avoidMouseIntensity = 500;
 
-	float maxSteer = 10;
+	float maxSteer = 4;
 };
 

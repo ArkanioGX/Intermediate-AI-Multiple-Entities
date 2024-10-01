@@ -17,13 +17,14 @@ void Game::load()
 	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
 
 	int ScreenSize = 1000;
-	int boidCount = 25;
+	int boidCount = 10;
 	float PlaceOffsetX = 1920 / (boidCount+1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
 	for (int i = 0; i < boidCount; i++) {
 		for (int j = 0; j < boidCount; j++) {
 			BoidActor* boid = new BoidActor();
 			boid->setPosition(Vector2{float(i*PlaceOffsetX),float(j*PlaceOffsetY) });
+			boid->setScale(Vector2{ 2,2 });
 			boidList.push_back(boid);
 		}
 	}
