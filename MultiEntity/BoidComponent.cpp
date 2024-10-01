@@ -17,21 +17,25 @@ BoidComponent::BoidComponent(Actor* owner):
 
 void BoidComponent::update(float dt)
 {
-	if (getOwner()->getActorID() == 5) {
-		getOwner()->getComponent<TextureComponent*>()->color = GREEN;
-		Vector2 gPos = BoidGroupManager::Instance()->getGridPos(getOwner()->getPosition());
-		//std::cout << " x : " << gPos.x << " | y : " << gPos.y << std::endl;
-		//std::cout << (Vector2Equals(gridParent, gPos) == 0  ? "New Grid !" : "Same Grid") << std::endl;
-		if (Vector2Equals(gridParent, gPos) == 0) {
-			BoidGroupManager::Instance()->AddChild(static_cast<BoidActor*>(getOwner()), gPos);
-		}
+	Vector2 gPos = BoidGroupManager::Instance()->getGridPos(getOwner()->getPosition());
+	//getOwner()->getComponent<TextureComponent*>()->color = RED;
+	if (Vector2Equals(gridParent, gPos) == 0) {
+		BoidGroupManager::Instance()->AddChild(static_cast<BoidActor*>(getOwner()), gPos);
 		gridParent = gPos;
 	}
+	
+	
+	
+	std::vector<class BoidActor*> boidsList = BoidGroupManager::Instance()->getBoids(gPos);
 
+	if (getOwner()->getActorID() == 5) {
+		getOwner()->getComponent<TextureComponent*>()->color = GREEN;
+		std::cout << " x : " << gPos.x << " y | " << gPos.y << std::endl;
+		std::cout << " Boids in range : " << boidsList.size() << std::endl;
+	}
 
 	Vector2 nextMove = forward;
 	Vector2 separateDir = Vector2Zero();;
-	std::vector<class BoidActor*>& boidsList = Game::instance().boidList;
 
 	int boidAlignPerceived = 0;
 	Vector2 avgForce = Vector2Zero();

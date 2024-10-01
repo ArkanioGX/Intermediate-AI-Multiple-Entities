@@ -34,7 +34,7 @@ bool BoidGroupManager::AddChild(BoidActor* boid, Vector2 newPos)
     Vector2 oldPos = boid->getComponent<BoidComponent*>()->getGridParent();
     if (Vector2Equals(oldPos, Vector2{ -1,-1 }) == 0) {
         while (std::find(GridContent[int(oldPos.x)][int(oldPos.y)].begin(), GridContent[int(oldPos.x)][int(oldPos.y)].end(), boid) != GridContent[int(oldPos.x)][int(oldPos.y)].end()) {
-            GridContent[int(oldPos.x)][int(oldPos.y)].erase(std::remove(GridContent[int(oldPos.x)][int(oldPos.y)].begin(), GridContent[int(oldPos.x)][int(oldPos.y)].end(), boid));
+            GridContent[int(oldPos.x)][int(oldPos.y)].erase(std::remove(GridContent[int(oldPos.x)][int(oldPos.y)].begin(), GridContent[int(oldPos.x)][int(oldPos.y)].end(), boid), GridContent[int(oldPos.x)][int(oldPos.y)].end());
         }
     }
     GridContent[int(newPos.x)][int(newPos.y)].push_back(boid);
@@ -44,9 +44,26 @@ bool BoidGroupManager::AddChild(BoidActor* boid, Vector2 newPos)
 std::vector<BoidActor*> BoidGroupManager::getBoids(Vector2 gridPos)
 {
     std::vector<BoidActor*> boidsList;
-    for (BoidActor* boid: GridContent[int(gridPos.x)][int(gridPos.y)]) {
-        boidsList.push_back(boid);
-    }
+    for (int i = -cellNeighborCheck; i <= cellNeighborCheck ; i++) {
+        for (int j = -cellNeighborCheck; j <= cellNeighborCheck ; j++) {
+            Vector2 nextGridPos = Vector2{ gridPos.x + i, gridPos.y + j };
+            if (nextGridPos.x < minGrid.x) {
+                continue;
+            }
+            if (nextGridPos.x > maxGrid.x) {
+                continue;
+            }
+            if (nextGridPos.y < minGrid.y) {
+                continue;
+            }
+            if (nextGridPos.y > maxGrid.y) {
+                continue;
+            }
 
-    return std::vector<BoidActor*>();
+            for (BoidActor* boid : GridContent[int(gridPos.x)][int(gridPos.y)]) {
+                boidsList.push_back(boid);
+            }
+        }
+    }
+    return boidsList;
 }

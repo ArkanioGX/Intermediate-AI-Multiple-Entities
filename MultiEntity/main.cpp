@@ -7,7 +7,7 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Boid Gamingz");
     int display = GetCurrentMonitor();
     SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
-    ToggleFullscreen();
+    //ToggleFullscreen();
 
     Game::instance().load();
 

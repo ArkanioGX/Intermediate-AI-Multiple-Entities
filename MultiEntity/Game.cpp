@@ -17,7 +17,7 @@ void Game::load()
 	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
 
 	int ScreenSize = 1000;
-	int boidCount = 20;
+	int boidCount = 3;
 	float PlaceOffsetX = 1920 / (boidCount+1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
 	for (int i = 0; i < boidCount; i++) {
