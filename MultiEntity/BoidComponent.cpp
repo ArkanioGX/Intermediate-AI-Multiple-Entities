@@ -55,8 +55,10 @@ void BoidComponent::update(float dt)
 			continue;
 		}
 		separateDir = Vector2Add(separateDir, Separate(boid));
-		Align(boid,avgForce,boidAlignPerceived);
-		Group(boid,avgPos,boidGroupPerceived);
+		if (boid->getComponent<BoidComponent*>()->team == team) {
+			Align(boid, avgForce, boidAlignPerceived);
+			Group(boid, avgPos, boidGroupPerceived);
+		}
 		huntForce = Vector2Add(huntForce, Hunt(boid));
 		fleeForce = Vector2Add(fleeForce, Flee(boid));
 	}
