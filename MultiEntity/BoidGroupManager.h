@@ -12,13 +12,13 @@ public:
 	std::vector<BoidActor*> getBoids(Vector2 gridPos);
 
 private:
-	int cellNeighborCheck = 2;
+	int cellNeighborCheck = 1;
 
-	int cellSizeX = 128;
-	int cellSizeY = 108;
+	int cellSizeX = 64;
+	int cellSizeY = 54;
 
 	Vector2 minGrid = Vector2{ 0,0 };
-	Vector2 maxGrid = Vector2{ float(floor(1920 / cellSizeX)),float(floor(1080 / cellSizeX)) };
+	Vector2 maxGrid = Vector2{ float(floor(1920 / cellSizeX)),float(floor(1080 / cellSizeY)) };
 
 	BoidGroupManager();
 	static BoidGroupManager* instance;

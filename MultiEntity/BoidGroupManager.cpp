@@ -43,6 +43,7 @@ bool BoidGroupManager::AddChild(BoidActor* boid, Vector2 newPos)
 
 std::vector<BoidActor*> BoidGroupManager::getBoids(Vector2 gridPos)
 {
+
     std::vector<BoidActor*> boidsList;
     for (int i = -cellNeighborCheck; i <= cellNeighborCheck ; i++) {
         for (int j = -cellNeighborCheck; j <= cellNeighborCheck ; j++) {
@@ -50,17 +51,17 @@ std::vector<BoidActor*> BoidGroupManager::getBoids(Vector2 gridPos)
             if (nextGridPos.x < minGrid.x) {
                 continue;
             }
-            if (nextGridPos.x > maxGrid.x) {
+            if (nextGridPos.x >= maxGrid.x) {
                 continue;
             }
             if (nextGridPos.y < minGrid.y) {
                 continue;
             }
-            if (nextGridPos.y > maxGrid.y) {
+            if (nextGridPos.y >= maxGrid.y) {
                 continue;
             }
 
-            for (BoidActor* boid : GridContent[int(gridPos.x)][int(gridPos.y)]) {
+            for (BoidActor* boid : GridContent[int(nextGridPos.x)][int(nextGridPos.y)]) {
                 boidsList.push_back(boid);
             }
         }

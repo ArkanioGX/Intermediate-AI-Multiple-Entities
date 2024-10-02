@@ -8,30 +8,34 @@
 #include "math.h"
 #include "BoidGroupManager.h"
 #include "TextureComponent.h"
+#include <utility>
+#include <type_traits>
+
+Color BoidComponent::teamColor[3] = { GREEN,ORANGE,SKYBLUE };
+Color BoidComponent::teamColor2[3] = { DARKGREEN,RED,BLUE };
 
 BoidComponent::BoidComponent(Actor* owner):
 	Component(owner)
 {
 	forward = Vector2Normalize(Vector2Subtract(getOwner()->getPosition(), Vector2{ 400,400 }));
+	changeTeam(static_cast<BoidType>(GetRandomValue(0, 2)));
 }
 
 void BoidComponent::update(float dt)
 {
 	Vector2 gPos = BoidGroupManager::Instance()->getGridPos(getOwner()->getPosition());
-	//getOwner()->getComponent<TextureComponent*>()->color = RED;
+	
 	if (Vector2Equals(gridParent, gPos) == 0) {
+		
 		BoidGroupManager::Instance()->AddChild(static_cast<BoidActor*>(getOwner()), gPos);
 		gridParent = gPos;
 	}
 	
-	
-	
 	std::vector<class BoidActor*> boidsList = BoidGroupManager::Instance()->getBoids(gPos);
 
-	if (getOwner()->getActorID() == 5) {
-		getOwner()->getComponent<TextureComponent*>()->color = GREEN;
-		std::cout << " x : " << gPos.x << " y | " << gPos.y << std::endl;
-		std::cout << " Boids in range : " << boidsList.size() << std::endl;
+	if (flashAlpha != 0) {
+		flashAlpha = Clamp(flashAlpha - (dt / flashTime), 0.f, 1.f);
+		tc->color = GetColorFromFlash(boidColor, flashAlpha);
 	}
 
 	Vector2 nextMove = forward;
@@ -43,6 +47,9 @@ void BoidComponent::update(float dt)
 	int boidGroupPerceived = 0;
 	Vector2 avgPos = Vector2Zero();
 
+	Vector2 huntForce = Vector2Zero();
+	Vector2 fleeForce = Vector2Zero();
+
 	for (BoidActor* boid : boidsList) {
 		if (boid == getOwner()) {
 			continue;
@@ -50,6 +57,8 @@ void BoidComponent::update(float dt)
 		separateDir = Vector2Add(separateDir, Separate(boid));
 		Align(boid,avgForce,boidAlignPerceived);
 		Group(boid,avgPos,boidGroupPerceived);
+		huntForce = Vector2Add(huntForce, Hunt(boid));
+		fleeForce = Vector2Add(fleeForce, Flee(boid));
 	}
 
 	nextMove = Vector2Add(nextMove, Vector2Scale(separateDir, separateIntensity));
@@ -58,12 +67,16 @@ void BoidComponent::update(float dt)
 	boidGroupPerceived = std::max(1, boidGroupPerceived);
 	Vector2 forceToAvgPos = Vector2Normalize(Vector2Subtract(Vector2{ avgPos.x / boidGroupPerceived,avgPos.y / boidGroupPerceived }, getOwner()->getPosition()));
 	nextMove = Vector2Add(nextMove, Vector2Scale(forceToAvgPos, groupIntensity));
+	nextMove = Vector2Add(nextMove, Vector2Scale(huntForce, huntIntensity));
+	nextMove = Vector2Add(nextMove, Vector2Scale(fleeForce, fleeIntensity));
 
 	//v2 = Bait();
 	//nextMove = Vector2Add(nextMove, Vector2Scale(v2, baitIntensity));
 
-	Vector2 v2 = AvoidMouse();
-	nextMove = Vector2Add(nextMove, Vector2Scale(v2, avoidMouseIntensity));
+	if (IsMouseButtonPressed(0)) {
+		Vector2 v2 = AvoidMouse();
+		nextMove = Vector2Add(nextMove, Vector2Scale(v2, avoidMouseIntensity));
+	}
 
 	nextMove = Vector2Normalize(nextMove);
 
@@ -76,6 +89,16 @@ void BoidComponent::update(float dt)
 	getOwner()->pos = nextPos;
 
 	getOwner()->angle = Vector2Angle(Vector2{ 1,0 }, forward)*180/M_PI;
+}
+
+void BoidComponent::changeTeam(BoidType bt)
+{
+	team = bt;
+	flashAlpha = 1;
+	float colorMix = Clamp(float(GetRandomValue(0, 1000)) / 1000,0,1);
+	boidColor = ColorLerp(teamColor[BoidType(bt)], teamColor2[BoidType(bt)],colorMix) ;
+	tc = getOwner()->getComponent<TextureComponent*>();
+	tc->color = GetColorFromFlash(boidColor,flashAlpha);
 }
 
 Vector2 BoidComponent::Separate(BoidActor* boid)
@@ -136,6 +159,61 @@ void BoidComponent::Group(BoidActor* boid, Vector2& avgPos, int& boidPerceived)
 		avgPos = Vector2Add(avgPos, otherBoidPos);
 		boidPerceived++;
 	}
+}
+
+Vector2 BoidComponent::Hunt(BoidActor* boid)
+{
+	if (team != (boid->getComponent<BoidComponent*>()->team + 1) % 3)
+		return Vector2Zero();
+	Vector2 boidPos = getOwner()->pos;
+	Vector2 force = Vector2Zero();
+	float dist = Vector2Distance(boidPos, boid->pos);
+	if ( dist < huntRadius) {
+		force = Vector2Normalize(Vector2Subtract(boid->pos, boidPos));
+		if (dist < transformRange) {
+			Transform(boid);
+			getOwner()->setScale(Vector2Scale(getOwner()->getScale(), 1.002));
+		}
+	}
+	return force;
+}
+
+Vector2 BoidComponent::Flee(BoidActor* boid)
+{
+	if (team != (boid->getComponent<BoidComponent*>()->team - 1) % 3)
+		return Vector2Zero();
+	Vector2 force = { 0,0 };
+	Vector2 boidPos = getOwner()->pos;
+	if (Vector2Distance(boidPos, boid->pos) < fleeRadius) {
+		force = Vector2Normalize(Vector2Subtract(boidPos, boid->pos));
+	}
+	return force;
+}
+
+Color BoidComponent::GetColorFromFlash(Color col, float alpha)
+{
+	Vector4 colV4 = ColorNormalize(col);
+	Vector3 colV3 = Vector3{ colV4.x,colV4.y,colV4.z };
+	colV3 = Vector3Lerp(colV3, Vector3One(), alpha);
+	colV4 = Vector4{ colV3.x,colV3.y,colV3.z,colV4.w };
+	return ColorFromNormalized(colV4);
+}
+
+Color BoidComponent::ColorLerp(Color col1, Color col2, float alpha)
+{
+	Vector4 col1V4 = ColorNormalize(col1);
+	Vector3 col1V3 = Vector3{ col1V4.x,col1V4.y,col1V4.z };
+	Vector4 col2V4 = ColorNormalize(col2);
+	Vector3 col2V3 = Vector3{ col2V4.x,col2V4.y,col2V4.z };
+	Vector3 finalColor = Vector3Lerp(col1V3, col2V3, alpha);
+	Vector4 finalColV4 = Vector4{ finalColor.x,finalColor.y,finalColor.z,col1V4.w };
+	return ColorFromNormalized(finalColV4);
+}
+
+void BoidComponent::Transform(BoidActor* boid)
+{
+	boid->getComponent<BoidComponent*>()->changeTeam(team);
+	
 }
 
 Vector2 BoidComponent::Bait()
