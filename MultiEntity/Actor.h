@@ -3,6 +3,8 @@
 #include "Component.h"
 #include "raylib.h"
 
+enum ActorState{ Running, Dead};
+
 class Actor
 {
 protected:
@@ -15,6 +17,7 @@ public:
 
 public:
 	Actor();
+	~Actor();
 
 	void update(float dt);
 	bool addComponent(Component*);
@@ -46,8 +49,12 @@ public:
 	
 	int getActorID() { return actorID; }
 
+	void killActor();
+	ActorState getState();
+
 private:
 	static int NextActorID;
 	int actorID;
+	ActorState state = ActorState::Running;
 };
 

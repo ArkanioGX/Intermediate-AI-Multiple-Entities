@@ -8,6 +8,7 @@
 #include "math.h"
 #include "BoidGroupManager.h"
 #include "TextureComponent.h"
+#include "ExplosionActor.h"
 #include <utility>
 #include <type_traits>
 
@@ -175,6 +176,7 @@ Vector2 BoidComponent::Hunt(BoidActor* boid)
 		if (dist < transformRange) {
 			Transform(boid);
 			getOwner()->setScale(Vector2Scale(getOwner()->getScale(), 1.002));
+			
 		}
 	}
 	return force;
@@ -214,6 +216,9 @@ Color BoidComponent::ColorLerp(Color col1, Color col2, float alpha)
 
 void BoidComponent::Transform(BoidActor* boid)
 {
+	if (boid->getComponent<BoidComponent*>()->team != team) {
+		ExplosionActor* ea = new ExplosionActor(getOwner()->pos);
+	}
 	boid->getComponent<BoidComponent*>()->changeTeam(team);
 	
 }

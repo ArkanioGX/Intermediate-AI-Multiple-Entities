@@ -15,6 +15,7 @@ Game::Game()
 void Game::load()
 {
 	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
+	Assets::instance().addTexture("Images/Explosion.png", "Explosion");
 
 	int ScreenSize = 1000;
 	int boidCount = 1000;
@@ -32,10 +33,15 @@ void Game::load()
 
 void Game::loop()
 {
+	deadActorsList.clear();
 	float dt =GetFrameTime();
 	for (int i = 0; i < actorsList.size(); i++) {
 		actorsList[i]->update(dt);
+		if (actorsList[i]->getState() == ActorState::Dead) {
+			deadActorsList.push_back(actorsList[i]);
+		}
 	}
+	
 }
 
 void Game::draw()
@@ -54,6 +60,13 @@ void Game::draw()
 
 void Game::close()
 {
+}
+
+void Game::RemoveDeadActors()
+{
+	for (Actor* deadActor : deadActorsList) {
+		delete deadActor;
+	}
 }
 
 void Game::addActor(Actor* a)

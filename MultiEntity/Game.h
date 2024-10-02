@@ -6,6 +6,7 @@
 class Game
 {
 	std::vector<Actor*> actorsList;
+	std::vector<Actor*> deadActorsList;
 	std::vector<RenderComponent*> renderComponentList;
 public:
 
@@ -20,6 +21,7 @@ public:
 	void loop();
 	void draw();
 	void close();
+	void RemoveDeadActors();
 
 	void addActor(Actor*);
 	void removeActor(Actor*);

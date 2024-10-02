@@ -6,6 +6,7 @@ class Component
 {
 public:
 	Component(Actor* a);
+	virtual ~Component();
 
 	Actor* getOwner();
 	virtual void update(float dt);

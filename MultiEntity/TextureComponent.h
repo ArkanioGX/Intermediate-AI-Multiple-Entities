@@ -7,6 +7,7 @@ public:
 	Texture2D& tex;
 
 	TextureComponent(class Actor* owner, Texture2D& texT);
+	~TextureComponent();
 
 	void draw() override;
 };

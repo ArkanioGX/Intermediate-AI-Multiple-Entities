@@ -7,6 +7,10 @@ Component::Component(Actor* a)
 	a->addComponent(this);
 }
 
+Component::~Component()
+{
+}
+
 Actor* Component::getOwner()
 {
 	return owner;

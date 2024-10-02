@@ -8,6 +8,12 @@ RenderComponent::RenderComponent(Actor* owner):
 	Game::instance().addRenderComponent(this);
 }
 
+RenderComponent::~RenderComponent()
+{
+	
+	Game::instance().removeRenderComponent(this);
+}
+
 void RenderComponent::draw()
 {
 	Actor* own = getOwner();

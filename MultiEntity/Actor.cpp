@@ -11,6 +11,16 @@ Actor::Actor()
 	NextActorID++;
 }
 
+Actor::~Actor()
+{
+	Game::instance().removeActor(this);
+	while (!Components.empty())
+	{
+		delete Components.back();
+		Components.pop_back();
+	}
+}
+
 void Actor::update(float dt)
 {
 	for (int i = 0; i < Components.size(); i++) {
@@ -54,4 +64,14 @@ void Actor::setScale(Vector2 sclT)
 bool Actor::operator==(const Actor& act2)
 {
 	return actorID == act2.actorID;
+}
+
+void Actor::killActor()
+{
+	state = ActorState::Dead;
+}
+
+ActorState Actor::getState()
+{
+	return state;
 }
