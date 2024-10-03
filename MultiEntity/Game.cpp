@@ -15,7 +15,7 @@ Game::Game()
 void Game::load()
 {
 	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
-	Assets::instance().addTexture("Images/Explosion.png", "Explosion");
+	Assets::instance().addTexture("Images/Explosion2.png", "Explosion");
 
 	int ScreenSize = 1000;
 	int boidCount = 1000;

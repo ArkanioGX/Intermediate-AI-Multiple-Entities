@@ -11,6 +11,7 @@ private:
 	Vector2 minMaxRotSpeed = Vector2{ 50,360 };
 public:
 	ExplosionComponent(class Actor* owner);
+	class TextureComponent* tc;
 
 	void update(float dt) override;
 };
