@@ -6,6 +6,7 @@
 #include <stdlib.h>     
 #include <time.h>  
 #include "Assets.h"
+#include "raymath.h"
 
 
 
@@ -24,9 +25,9 @@ void Game::load()
 	float PlaceOffsetX = 1920 / (boidCount+1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
 
-	ObstacleActor* Obstacle = new ObstacleActor();
-	Obstacle->setPosition(Vector2{ 200,200 });
-	Obstacle->setScale(Vector2{ 5,5 });
+	//ObstacleActor* Obstacle = new ObstacleActor();
+	//Obstacle->setPosition(Vector2{ 200,200 });
+	//Obstacle->setScale(Vector2{ 5,5 });
 
 	for (int i = 0; i < boidCount; i++) {
 		Vector2 newPos = Vector2{ float(GetRandomValue(0,1920)),float(GetRandomValue(0,1080)) };
@@ -49,6 +50,24 @@ void Game::loop()
 		}
 	}
 	
+	//Obstacle Placement
+	if (IsMouseButtonPressed(0)) {
+		obstacleStartPos = GetMousePosition();
+	}
+	if (IsMouseButtonReleased(0)) {
+		Vector2 obstacleEndPos = GetMousePosition();
+		//get the upper left pos
+		Vector2 pos1 = Vector2{ obstacleStartPos.x < obstacleEndPos.x ? obstacleStartPos.x : obstacleEndPos.x,
+							   obstacleStartPos.y < obstacleEndPos.y ? obstacleStartPos.y : obstacleEndPos.y };
+		//get the lower right pos
+		Vector2 pos2 = Vector2{ obstacleStartPos.x > obstacleEndPos.x ? obstacleStartPos.x : obstacleEndPos.x,
+							   obstacleStartPos.y > obstacleEndPos.y ? obstacleStartPos.y : obstacleEndPos.y };
+		Vector2 size = Vector2Subtract(pos2, pos1);
+
+		ObstacleActor* Obstacle = new ObstacleActor();
+		Obstacle->setPosition(Vector2{ Vector2Add(pos1,Vector2Scale(size,0.5))});
+		Obstacle->setScale(Vector2Scale(size,1.f/16));
+	}
 }
 
 void Game::draw()

@@ -33,5 +33,7 @@ public:
 
 	std::vector<class BoidActor*> boidList;
 	std::vector<class ObstacleActor*> obstacleList;
+
+	Vector2 obstacleStartPos = Vector2{ 0,0 };
 };
 

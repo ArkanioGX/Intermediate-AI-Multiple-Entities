@@ -76,7 +76,7 @@ private:
 
 	float transformRange = 30;
 
-	float ObstacleRange = 60;
-	float avoidObstacleIntensity = 1500;
+	float ObstacleRange = 100;
+	float avoidObstacleIntensity = 15000;
 };
 
