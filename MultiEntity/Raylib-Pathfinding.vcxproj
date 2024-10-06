@@ -148,6 +148,8 @@
     <ClCompile Include="ExplosionComponent.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ObstacleActor.cpp" />
+    <ClCompile Include="ObstacleComponent.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
   </ItemGroup>
@@ -161,6 +163,8 @@
     <ClInclude Include="ExplosionActor.h" />
     <ClInclude Include="ExplosionComponent.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="ObstacleActor.h" />
+    <ClInclude Include="ObstacleComponent.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
   </ItemGroup>

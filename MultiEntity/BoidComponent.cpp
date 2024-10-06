@@ -9,6 +9,7 @@
 #include "BoidGroupManager.h"
 #include "TextureComponent.h"
 #include "ExplosionActor.h"
+#include "ObstacleActor.h"
 #include <utility>
 #include <type_traits>
 
@@ -48,6 +49,8 @@ void BoidComponent::update(float dt)
 	int boidGroupPerceived = 0;
 	Vector2 avgPos = Vector2Zero();
 
+	Vector2 obstacleDir = Vector2Zero();
+
 	Vector2 huntForce = Vector2Zero();
 	Vector2 fleeForce = Vector2Zero();
 
@@ -60,9 +63,13 @@ void BoidComponent::update(float dt)
 			Align(boid, avgForce, boidAlignPerceived);
 			Group(boid, avgPos, boidGroupPerceived);
 		}
+
 		huntForce = Vector2Add(huntForce, Hunt(boid));
 		fleeForce = Vector2Add(fleeForce, Flee(boid));
 	}
+
+	obstacleDir = AvoidObstacles();
+	nextMove = Vector2Add(nextMove, Vector2Scale(obstacleDir, avoidObstacleIntensity));
 
 	nextMove = Vector2Add(nextMove, Vector2Scale(separateDir, separateIntensity));
 	boidAlignPerceived = std::max(1, boidAlignPerceived);
@@ -76,7 +83,7 @@ void BoidComponent::update(float dt)
 	//v2 = Bait();
 	//nextMove = Vector2Add(nextMove, Vector2Scale(v2, baitIntensity));
 
-	if (IsMouseButtonPressed(0)) {
+	if (IsMouseButtonDown(0)) {
 		Vector2 v2 = AvoidMouse();
 		nextMove = Vector2Add(nextMove, Vector2Scale(v2, avoidMouseIntensity));
 	}
@@ -194,6 +201,38 @@ Vector2 BoidComponent::Flee(BoidActor* boid)
 	return force;
 }
 
+Vector2 BoidComponent::AvoidObstacles()
+{
+	Vector2 force = Vector2Zero();
+	std::vector<ObstacleActor*> obsList = Game::instance().obstacleList;
+	for (ObstacleActor* obstacle : obsList) {
+		Vector2 minPos = Vector2Subtract(obstacle->pos, Vector2Scale(obstacle->scale, 8));
+		Vector2 scale = Vector2Scale(obstacle->scale, 16);
+		Vector2 boidPos = getOwner()->pos;
+		//Border Detection
+		//AABB Detection :)
+		if (boidPos.x > minPos.x - ObstacleRange &&
+			boidPos.x < minPos.x + scale.x + ObstacleRange &&
+			boidPos.y > minPos.y - ObstacleRange &&
+			boidPos.y < minPos.y + scale.y + ObstacleRange) {
+			if (boidPos.x < minPos.x) {
+				force = { force.x - 1, force.y };
+			}
+			if (boidPos.y < minPos.y) {
+				force = { force.x, force.y - 1 };
+			}
+			if (boidPos.x > minPos.x + scale.x ) {
+				force = { force.x + 1, force.y };
+			}
+			if (boidPos.y > minPos.y + scale.y) {
+				force = { force.x, force.y + 1 };
+			}
+		}
+		
+	}
+	return Vector2Normalize(force);
+}
+
 Color BoidComponent::GetColorFromFlash(Color col, float alpha)
 {
 	Vector4 colV4 = ColorNormalize(col);
@@ -216,9 +255,9 @@ Color BoidComponent::ColorLerp(Color col1, Color col2, float alpha)
 
 void BoidComponent::Transform(BoidActor* boid)
 {
-	if (boid->getComponent<BoidComponent*>()->team != team) {
-		ExplosionActor* ea = new ExplosionActor(getOwner()->pos);
-	}
+	//if (boid->getComponent<BoidComponent*>()->team != team) {
+		//ExplosionActor* ea = new ExplosionActor(getOwner()->pos);
+	//}
 	boid->getComponent<BoidComponent*>()->changeTeam(team);
 	
 }

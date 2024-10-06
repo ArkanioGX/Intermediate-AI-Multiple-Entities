@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "raylib.h"
 #include "BoidActor.h"
+#include "ObstacleActor.h"
 #include <iostream>
 #include <stdlib.h>     
 #include <time.h>  
@@ -16,11 +17,17 @@ void Game::load()
 {
 	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
 	Assets::instance().addTexture("Images/Explosion2.png", "Explosion");
+	Assets::instance().addTexture("Images/Obstacle.png", "Obstacle");
 
 	int ScreenSize = 1000;
 	int boidCount = 1000;
 	float PlaceOffsetX = 1920 / (boidCount+1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
+
+	ObstacleActor* Obstacle = new ObstacleActor();
+	Obstacle->setPosition(Vector2{ 200,200 });
+	Obstacle->setScale(Vector2{ 5,5 });
+
 	for (int i = 0; i < boidCount; i++) {
 		Vector2 newPos = Vector2{ float(GetRandomValue(0,1920)),float(GetRandomValue(0,1080)) };
 			BoidActor* boid = new BoidActor();
@@ -47,7 +54,7 @@ void Game::loop()
 void Game::draw()
 {
 	BeginDrawing();
-	ClearBackground(Color{ 10,20,75,255 });
+	ClearBackground(Color{ 5,10,25,255 });
 	for (int i = 0; i < renderComponentList.size(); i++) {
 		renderComponentList[i]->draw();
 	}
@@ -97,4 +104,9 @@ void Game::removeRenderComponent(RenderComponent* rc)
 			return;
 		}
 	}
+}
+
+void Game::addObstacle(ObstacleActor* oo)
+{
+	obstacleList.push_back(oo);
 }

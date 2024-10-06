@@ -8,7 +8,7 @@ private:
 	float timer = 0;
 
 	float rotSpeed = 5;
-	Vector2 minMaxRotSpeed = Vector2{ 50,360 };
+	Vector2 minMaxRotSpeed = Vector2{ 180,360 };
 public:
 	ExplosionComponent(class Actor* owner);
 	class TextureComponent* tc;

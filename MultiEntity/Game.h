@@ -29,7 +29,9 @@ public:
 	void addRenderComponent(RenderComponent*);
 	void removeRenderComponent(RenderComponent*);
 
+	void addObstacle(class ObstacleActor*);
+
 	std::vector<class BoidActor*> boidList;
-	
+	std::vector<class ObstacleActor*> obstacleList;
 };
 

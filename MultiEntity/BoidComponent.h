@@ -39,6 +39,7 @@ private:
 	void Group(class BoidActor* boid, Vector2& avgForce, int& boidPerceived);
 	Vector2 Hunt(class BoidActor* boid);
 	Vector2 Flee(class BoidActor* boid);
+	Vector2 AvoidObstacles();
 
 	Color GetColorFromFlash(Color col, float alpha);
 	Color ColorLerp(Color col1, Color col2, float alpha);
@@ -74,5 +75,8 @@ private:
 	float fleeIntensity = 200;
 
 	float transformRange = 30;
+
+	float ObstacleRange = 60;
+	float avoidObstacleIntensity = 1500;
 };
 
