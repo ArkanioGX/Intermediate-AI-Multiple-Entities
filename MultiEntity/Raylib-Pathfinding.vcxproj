@@ -143,31 +143,17 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Assets.cpp" />
-    <ClCompile Include="BoidActor.cpp" />
-    <ClCompile Include="BoidComponent.cpp" />
-    <ClCompile Include="BoidGroupManager.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="ExplosionActor.cpp" />
-    <ClCompile Include="ExplosionComponent.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ObstacleActor.cpp" />
-    <ClCompile Include="ObstacleComponent.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Assets.h" />
-    <ClInclude Include="BoidActor.h" />
-    <ClInclude Include="BoidComponent.h" />
-    <ClInclude Include="BoidGroupManager.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="ExplosionActor.h" />
-    <ClInclude Include="ExplosionComponent.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="ObstacleActor.h" />
-    <ClInclude Include="ObstacleComponent.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
   </ItemGroup>
