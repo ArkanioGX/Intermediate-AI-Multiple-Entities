@@ -8,6 +8,9 @@ class Game
 	std::vector<Actor*> actorsList;
 	std::vector<Actor*> deadActorsList;
 	std::vector<RenderComponent*> renderComponentList;
+
+	Texture background ;
+
 public:
 
 	static Game& instance() {
@@ -16,6 +19,8 @@ public:
 	}
 
 	Game();
+
+	Vector2 resolution;
 
 	void load();
 	void loop();

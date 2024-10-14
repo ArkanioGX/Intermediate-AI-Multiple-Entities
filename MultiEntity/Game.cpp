@@ -5,6 +5,7 @@
 #include <time.h>  
 #include "Assets.h"
 #include "raymath.h"
+#include "GridActor.h"
 
 
 
@@ -14,7 +15,11 @@ Game::Game()
 
 void Game::load()
 {
-	
+	resolution = Vector2{ float(GetRenderWidth()),float(GetRenderHeight()) };
+	Assets::addTexture("Images/background.png", "background");
+	background = Assets::getTexture("background");
+
+	GridActor* ga = new GridActor();
 }
 
 void Game::loop()
@@ -33,6 +38,13 @@ void Game::draw()
 {
 	BeginDrawing();
 	ClearBackground(Color{ 5,10,25,255 });
+	if (background.id != 0) {
+		Vector2 pos = Vector2Zero();
+		Rectangle src = Rectangle{ 0,0,float(background.width),float(background.height) };
+		Rectangle dest = Rectangle{ 0,0,resolution.x,resolution.y };
+		Vector2 origin = Vector2Zero();
+		DrawTexturePro(background, src, dest, origin, 0, WHITE);
+	}
 	for (int i = 0; i < renderComponentList.size(); i++) {
 		renderComponentList[i]->draw();
 	}

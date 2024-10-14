@@ -145,6 +145,9 @@
     <ClCompile Include="Assets.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GridActor.cpp" />
+    <ClCompile Include="GridComponent.cpp" />
+    <ClCompile Include="GridRendererComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
@@ -154,6 +157,9 @@
     <ClInclude Include="Assets.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GridActor.h" />
+    <ClInclude Include="GridComponent.h" />
+    <ClInclude Include="GridRendererComponent.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
   </ItemGroup>

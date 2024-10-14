@@ -6,7 +6,7 @@ int main() {
     const int screenHeight = 1000;
     InitWindow(screenWidth, screenHeight, "Boid Gamingz");
     int display = GetCurrentMonitor();
-    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+    SetWindowSize(screenWidth, screenHeight);
     ToggleFullscreen();
 
     Game::instance().load();
