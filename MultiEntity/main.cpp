@@ -4,10 +4,11 @@
 int main() {
     const int screenWidth = 1000;
     const int screenHeight = 1000;
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(screenWidth, screenHeight, "Boid Gamingz");
     int display = GetCurrentMonitor();
     SetWindowSize(screenWidth, screenHeight);
-    ToggleFullscreen();
+    //ToggleFullscreen();
 
     Game::instance().load();
 

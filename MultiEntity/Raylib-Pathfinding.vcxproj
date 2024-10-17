@@ -144,6 +144,7 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Assets.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="DebugManager.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GridActor.cpp" />
     <ClCompile Include="GridComponent.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Assets.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="DebugManager.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GridActor.h" />
     <ClInclude Include="GridComponent.h" />

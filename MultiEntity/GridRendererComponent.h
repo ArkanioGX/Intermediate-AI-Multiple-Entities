@@ -9,5 +9,7 @@ public:
 	~GridRendererComponent();
 
 	void draw() override;
+
+	Color TileColor[3] = { WHITE,DARKGRAY,GREEN };
 };
 

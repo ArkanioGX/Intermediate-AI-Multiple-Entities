@@ -17,21 +17,19 @@ GridRendererComponent::~GridRendererComponent()
 
 void GridRendererComponent::draw()
 {
-	int w = gc->getGridWidth();
-	int h = gc->getGridHeight();
+	int w = gc->getGridWidth() * gc->getInternalGridSize();
+	int h = gc->getGridHeight()* gc->getInternalGridSize();
 
 	float nodeW = float(Game::instance().resolution.x) / w;
 	float nodeH = float(Game::instance().resolution.y) / h;
 
-	for (int x = 0; x < w; x++) {
-		for (int y = 0; y < h; y++) {
-			Node* currentNode = gc->getNodeAt(x, y);
+	std::vector<Tile*> list = gc->getTiles();
 
-			if (currentNode->state == 1) {
-				Vector2 pos = Vector2Multiply(Vector2{ float(x),float(y) }, Vector2{ nodeW,nodeH });
-				DrawRectangle(pos.x, pos.y, nodeW, nodeH, BLACK);
+	for (Tile* t: list) {
+			if (t->state != 0) {
+				Vector2 pos = Vector2Multiply(Vector2{ float(t->x),float(t->y) }, Vector2{ nodeW,nodeH });
+				DrawRectangle(pos.x, pos.y, nodeW, nodeH, TileColor[t->state]);
 			}
 			
-		}
 	}
 }

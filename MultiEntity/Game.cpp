@@ -6,6 +6,7 @@
 #include "Assets.h"
 #include "raymath.h"
 #include "GridActor.h"
+#include "DebugManager.h"
 
 
 
@@ -48,6 +49,7 @@ void Game::draw()
 	for (int i = 0; i < renderComponentList.size(); i++) {
 		renderComponentList[i]->draw();
 	}
+	DebugManager::instance().draw();
 	DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 22, RAYWHITE);
 	EndDrawing();
 }
