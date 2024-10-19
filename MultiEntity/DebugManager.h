@@ -7,6 +7,7 @@ struct RectangleDebug {
 	Vector2 pos;
 	Vector2 size;
 	Color col;
+	bool fill;
 };
 
 class DebugManager
@@ -23,7 +24,7 @@ public:
 
 	void draw();
 
-	void addRectangle(RectangleDebug rd);
+	void addRectangle(Vector2 pos, Vector2 size, Color col = GREEN, bool isFilled = false);
 
 };
 

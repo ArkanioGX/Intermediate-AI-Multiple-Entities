@@ -49,7 +49,9 @@ void Game::draw()
 	for (int i = 0; i < renderComponentList.size(); i++) {
 		renderComponentList[i]->draw();
 	}
+#if _DEBUG
 	DebugManager::instance().draw();
+#endif
 	DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 22, RAYWHITE);
 	EndDrawing();
 }

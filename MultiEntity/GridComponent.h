@@ -17,6 +17,10 @@ struct Tile {
 
 	//state : 0 = Air, 1 = Obstacle
 	int state = 0;
+
+	Color debugColor = RED;
+
+	
 };
 
 struct Node {
@@ -29,6 +33,10 @@ public:
 	std::vector<Node*> nodeLinked;
 
 	Tile* getTileAt(int x, int y) { return tileGrid[x][y]; }
+
+	Color debugColor = GRAY;
+
+	void updateDijkstra();
 };
 
 class GridComponent : public Component
@@ -53,5 +61,8 @@ private:
 
 	Node* grid[gridSizeX][gridSizeY];
 	std::vector<Tile*> tileList;
+
+	Node* lastNodeSelected;
+	std::vector<Node*> nodeSelected;
 };
 

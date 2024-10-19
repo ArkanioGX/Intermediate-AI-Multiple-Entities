@@ -3,12 +3,22 @@
 void DebugManager::draw()
 {
 	for (RectangleDebug rd : rectList) {
-		DrawRectangle(rd.pos.x, rd.pos.y, rd.size.x, rd.size.y, rd.col);
+		if (rd.fill) {
+			DrawRectangle(rd.pos.x, rd.pos.y, rd.size.x, rd.size.y, rd.col);
+		}
+		else {
+			DrawRectangleLines(rd.pos.x, rd.pos.y, rd.size.x, rd.size.y, rd.col);
+		}
 	}
 	rectList.clear();
 }
 
-void DebugManager::addRectangle(RectangleDebug rd)
+void DebugManager::addRectangle(Vector2 pos, Vector2 size, Color col, bool isFilled)
 {
+	RectangleDebug rd;
+	rd.pos = pos;
+	rd.size = size;
+	rd.col = col;
+	rd.fill = isFilled;
 	rectList.push_back(rd);
 }
