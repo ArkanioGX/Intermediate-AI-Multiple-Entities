@@ -26,7 +26,7 @@ void GridRendererComponent::draw()
 	std::vector<Tile*> list = gc->getTiles();
 
 	for (Tile* t: list) {
-			if (t->state != 0) {
+			if (t->state == 1) {
 				Vector2 pos = Vector2Multiply(Vector2{ float(t->x),float(t->y) }, Vector2{ nodeW,nodeH });
 				DrawRectangle(pos.x, pos.y, nodeW, nodeH, TileColor[t->state]);
 			}

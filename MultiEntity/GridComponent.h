@@ -1,12 +1,15 @@
 #pragma once
 #include "Component.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <vector>
 
 static constexpr int gridSizeX = 10;
 static constexpr int gridSizeY = 10;
 
 static constexpr int nodeGridSize = 8;
+
+static constexpr Color colorDebugGroup[5] = { GREEN,YELLOW,BLUE,GOLD,VIOLET };
 
 
 
@@ -15,13 +18,40 @@ struct Tile {
 	int x;
 	int y;
 
-	//state : 0 = Air, 1 = Obstacle
+	int localX;
+	int localY;
+
+	//state : 0 = noNodeLinked, 1 = Obstacle, 2... Dijkstra Group
 	int state = 0;
 
 	Color debugColor = RED;
 
-	
+	bool operator == (const Tile& t) {
+		return (x == t.x) && (y == t.x);
+	}
+
+	Vector2 side = Vector2Zero();
+	class tileGroup* currentGroup;
 };
+
+struct tileGroup {
+	std::vector<Tile* > tiles;
+	std::vector<DijkstraNode*> dNodes;
+};
+
+struct DijkstraLink {
+	class DijkstraNode* node1;
+	class DijkstraNode* node2;
+
+	int dist;
+};
+
+struct DijkstraNode {
+	std::vector<DijkstraLink*> links;
+	class Node* node1;
+	class Node* node2;
+};
+
 
 struct Node {
 public:
@@ -64,5 +94,7 @@ private:
 
 	Node* lastNodeSelected;
 	std::vector<Node*> nodeSelected;
+
+	std::vector<DijkstraNode*> DNodeList;
 };
 

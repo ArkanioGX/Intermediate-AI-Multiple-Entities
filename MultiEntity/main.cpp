@@ -8,6 +8,7 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Boid Gamingz");
     int display = GetCurrentMonitor();
     SetWindowSize(screenWidth, screenHeight);
+    //SetTargetFPS(60);
     //ToggleFullscreen();
 
     Game::instance().load();
