@@ -13,6 +13,8 @@ GridComponent::GridComponent(Actor* owner):
 		for (int j = 0; j < gridSizeY; j++) {
 			Node* newNode= new Node();
 			
+			newNode->owner = this;
+
 			newNode->nodeX = i;
 			newNode->nodeY = j;
 
@@ -25,7 +27,10 @@ GridComponent::GridComponent(Actor* owner):
 					newTile->localX = k;
 					newTile->localY = l;
 					newTile->state = 0;
+
 					newNode->tileGrid[k][l] = newTile;
+					newTile->ownerNode = newNode;
+
 
 					if (k == 0) {
 						newTile->side = Vector2Add(newTile->side, Vector2{ -1,0 });
@@ -46,6 +51,11 @@ GridComponent::GridComponent(Actor* owner):
 			}
 			
 			grid[i][j] = newNode;
+		}
+	}
+	for (int i = 0; i < gridSizeX; i++) {
+		for (int j = 0; j < gridSizeY; j++) {
+			grid[i][j]->updateDijkstra();
 		}
 	}
 }
@@ -93,15 +103,47 @@ void GridComponent::update(float dt)
 	}
 	else if (IsMouseButtonDown(1)) {
 		currentTile->state = 0;
+		if (lastNodeSelected != currentNode) {
+			lastNodeSelected = currentNode;
+			currentNode->debugColor = GREEN;
+			nodeSelected.push_back(currentNode);
+		}
+
 	}
 	
-	if (IsMouseButtonReleased(0)) {
+	if (IsMouseButtonReleased(0) || IsMouseButtonReleased(1)) {
 		while (!nodeSelected.empty()) {
 			nodeSelected.back()->debugColor = RED;
 			nodeSelected.back()->updateDijkstra();
 			nodeSelected.pop_back();
 		}
 		lastNodeSelected = nullptr;
+
+		
+	}
+	if (IsMouseButtonDown(2)) {
+		tGroup* cg = currentTile->currentGroup;
+		for (Tile* t: cg->tiles)
+		{
+			t->debugColor = GREEN;
+		}
+		for (tGroup* cg2 : cg->tileGroupNearby) {
+			for (Tile* t : cg2->tiles)
+			{
+				t->debugColor = GREEN;
+			}
+		}
+	}
+	if (IsMouseButtonReleased(2)) {
+		for (int i = 0; i < gridSizeX; i++) {
+			for (int j = 0; j < gridSizeY; j++) {
+				for (int k = 0; k < nodeGridSize; k++) {
+					for (int l = 0; l < nodeGridSize; l++) {
+						grid[i][j]->getTileAt(k, l)->debugColor = RED;
+					}
+				}
+			}
+		}
 	}
 	Vector2 rPos;
 	for (int x = 0; x < gridSizeX; x++) {
@@ -134,14 +176,21 @@ void Node::updateDijkstra()
 		}
 	}
 
-	int check = Vector2Equals(Vector2Zero(), Vector2Zero());
-	check = Vector2Equals(Vector2Zero(), Vector2{1,0});
-	check = Vector2Equals(Vector2Zero(), Vector2{ 1,1 });
-	check = Vector2Equals(Vector2Zero(), Vector2{ 0,1 });
+	while (!tGroups.empty()) {
+		tGroup* currentTGroup = tGroups.back();
+		//Removes all mentions of the current tGroup
+		for (tGroup* tg : currentTGroup->tileGroupNearby) {
+			while (std::find(tg->tileGroupNearby.begin(), tg->tileGroupNearby.end(), currentTGroup) != tg->tileGroupNearby.end()) {
+				tg->tileGroupNearby.erase(std::remove(tg->tileGroupNearby.begin(), tg->tileGroupNearby.end(), currentTGroup), tg->tileGroupNearby.end());
+			}
+		}
+		delete currentTGroup;
+		tGroups.pop_back();
+	}
+
 
 	int currentGroup = 0;
 	std::vector<Tile*> tileToCheck;
-	tileToCheck.push_back(tileUnchecked.back());
 	while (!tileUnchecked.empty()) {
 		//get a tile that is unchecked
 		tileToCheck.push_back(tileUnchecked.back());
@@ -153,10 +202,12 @@ void Node::updateDijkstra()
 			//get a tile to check
 			Tile* currentTile = tileToCheck.back();
 			tileToCheck.pop_back();
-			currentTile->debugColor = colorDebugGroup[currentGroup];
+			//currentTile->debugColor = colorDebugGroup[currentGroup];
 			currentTile->state = 2 + currentGroup;
+			currentTile->currentGroup = nullptr;
+
 			tileGroup.push_back(currentTile);
-			if (Vector2Equals(currentTile->side, Vector2Zero()) != 1) {
+			if (currentTile->side.x != 0 || currentTile->side.y != 0)  {
 				sideTileGroup.push_back(currentTile);
 			}
 
@@ -175,15 +226,81 @@ void Node::updateDijkstra()
 			}
 		}
 
-		//No Side Detected
-		if (sideTileGroup.size() == 0) {
-			for (Tile* t : tileGroup) {
+		tGroup* currentTGroup = new tGroup();
+		for (Tile* t : tileGroup) {
+
+			currentTGroup->tiles.push_back(t);
+			t->currentGroup = currentTGroup;
+
+			//No Side Detected
+			if (sideTileGroup.size() == 0) {
 				t->debugColor = DARKGRAY;
 				t->state = 0;
 			}
 		}
 
-		
+		for (Tile* t : sideTileGroup) {
+			if (t->side.x != 0) {
+				int nPosX = t->ownerNode->nodeX + t->side.x;
+				int nPosY = t->ownerNode->nodeY;
+				if (nPosX >= 0 && nPosX < gridSizeX) {
+					Node* neighborNode = t->ownerNode->owner->getNodeAt(nPosX, nPosY);
+
+					for (int i = -1; i <= 1; i++) {
+
+						int tPosX = int(nodeGridSize + t->localX + t->side.x) % nodeGridSize;
+						int tPosY = t->localY + i;
+						if (tPosY >= 0 && tPosY < nodeGridSize) {
+							Tile* neighborTile = neighborNode->getTileAt(tPosX, tPosY);
+							if (neighborTile->state > 1) {
+								currentTGroup->tileGroupNearby.push_back(neighborTile->currentGroup);
+								neighborTile->currentGroup->tileGroupNearby.push_back(currentTGroup);
+							}
+							//
+							//
+						}
+					}
+				}
+				if (t->side.y != 0) {
+					
+					nPosX = t->ownerNode->nodeX + t->side.x;
+					nPosY = t->ownerNode->nodeY + t->side.y;
+					if (nPosY >= 0 && nPosY < gridSizeY && nPosX >= 0 && nPosX < gridSizeX) {
+						Node* neighborNode = t->ownerNode->owner->getNodeAt(nPosX, nPosY);
+						int tPosX = int(nodeGridSize + t->localX + t->side.x) % nodeGridSize;
+						int tPosY = int(nodeGridSize + t->localY + t->side.y) % nodeGridSize;
+						Tile* neighborTile = neighborNode->getTileAt(tPosX, tPosY);
+						if (neighborTile->state > 1) {
+							currentTGroup->tileGroupNearby.push_back(neighborTile->currentGroup);
+							neighborTile->currentGroup->tileGroupNearby.push_back(currentTGroup);
+						}
+
+					}
+				}
+			}
+			else if (t->side.y != 0)
+			{
+				int nPosX = t->ownerNode->nodeX;
+				int nPosY = t->ownerNode->nodeY + t->side.y;
+				if (nPosY >= 0 && nPosY < gridSizeY) {
+					Node* neighborNode = t->ownerNode->owner->getNodeAt(nPosX, nPosY);
+
+					for (int i = -1; i <= 1; i++) {
+
+						int tPosX = t->localX + i;
+						int tPosY = int(nodeGridSize + t->localY + t->side.y) % nodeGridSize;
+						if (tPosX >= 0 && tPosX < nodeGridSize) {
+							Tile* neighborTile = neighborNode->getTileAt(tPosX, tPosY);
+							if (neighborTile->state > 1) {
+								currentTGroup->tileGroupNearby.push_back(neighborTile->currentGroup);
+								neighborTile->currentGroup->tileGroupNearby.push_back(currentTGroup);
+							}
+						}
+					}
+				}
+			}
+		}
+		tGroups.push_back(currentTGroup);
 
 		tileGroup.clear();
 		sideTileGroup.clear();

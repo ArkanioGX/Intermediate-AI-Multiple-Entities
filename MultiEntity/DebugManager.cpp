@@ -15,10 +15,12 @@ void DebugManager::draw()
 
 void DebugManager::addRectangle(Vector2 pos, Vector2 size, Color col, bool isFilled)
 {
+#if _DEBUG
 	RectangleDebug rd;
 	rd.pos = pos;
 	rd.size = size;
 	rd.col = col;
 	rd.fill = isFilled;
 	rectList.push_back(rd);
+#endif
 }

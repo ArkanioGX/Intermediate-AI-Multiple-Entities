@@ -30,26 +30,17 @@ struct Tile {
 		return (x == t.x) && (y == t.x);
 	}
 
+	class Node* ownerNode;
+
 	Vector2 side = Vector2Zero();
-	class tileGroup* currentGroup;
+	class tGroup* currentGroup;
 };
 
-struct tileGroup {
+struct tGroup {
 	std::vector<Tile* > tiles;
-	std::vector<DijkstraNode*> dNodes;
-};
+	std::vector<tGroup*> tileGroupNearby;
 
-struct DijkstraLink {
-	class DijkstraNode* node1;
-	class DijkstraNode* node2;
-
-	int dist;
-};
-
-struct DijkstraNode {
-	std::vector<DijkstraLink*> links;
-	class Node* node1;
-	class Node* node2;
+	bool isNull() { return (tiles.size() == 0 && tileGroupNearby.size() == 0); }
 };
 
 
@@ -60,13 +51,15 @@ public:
 	int nodeY;
 
 	Tile* tileGrid[nodeGridSize][nodeGridSize];
-	std::vector<Node*> nodeLinked;
+	std::vector<tGroup*> tGroups;
 
 	Tile* getTileAt(int x, int y) { return tileGrid[x][y]; }
 
 	Color debugColor = GRAY;
 
 	void updateDijkstra();
+
+	class GridComponent* owner;
 };
 
 class GridComponent : public Component
@@ -95,6 +88,6 @@ private:
 	Node* lastNodeSelected;
 	std::vector<Node*> nodeSelected;
 
-	std::vector<DijkstraNode*> DNodeList;
+	std::vector<tGroup*> tGroupsList;
 };
 
