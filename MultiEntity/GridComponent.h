@@ -4,8 +4,8 @@
 #include "raymath.h"
 #include <vector>
 
-static constexpr int gridSizeX = 10;
-static constexpr int gridSizeY = 10;
+static constexpr int gridSizeX = 16;
+static constexpr int gridSizeY = 9;
 
 static constexpr int nodeGridSize = 8;
 
@@ -70,6 +70,8 @@ public:
 	Node* getNodeAt(int x, int y);
 	int getGridWidth() { return gridSizeX; }
 	int getGridHeight() { return gridSizeY; }
+
+	std::vector<tGroup*> getDijkstraPath();
 
 	int getInternalGridSize() { return nodeGridSize; }
 

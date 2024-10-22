@@ -2,14 +2,14 @@
 #include "Game.h"
 
 int main() {
-    const int screenWidth = 1000;
-    const int screenHeight = 1000;
+    const int screenWidth = 1920;
+    const int screenHeight = 1080;
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(screenWidth, screenHeight, "Boid Gamingz");
     int display = GetCurrentMonitor();
     SetWindowSize(screenWidth, screenHeight);
     //SetTargetFPS(60);
-    //ToggleFullscreen();
+    ToggleFullscreen();
 
     Game::instance().load();
 

@@ -65,6 +65,13 @@ Node* GridComponent::getNodeAt(int x, int y)
 	return grid[x][y];
 }
 
+std::vector<tGroup*> GridComponent::getDijkstraPath()
+{
+	std::vector<tGroup*> dPath;
+
+	return dPath;
+}
+
 std::vector<Tile*> GridComponent::getTiles()
 {
 	return tileList;
