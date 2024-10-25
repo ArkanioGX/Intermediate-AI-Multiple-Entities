@@ -106,7 +106,7 @@ std::vector<tGroup*> GridComponent::getDijkstraPath(tGroup* begin, tGroup* end)
 	std::vector<dijkstraNode>::iterator dnItEnd = std::find(nList.begin(), nList.end(), end);
 	tGroup* tgCheck = (*dnItEnd).currentTGroup;
 	dPath.push_back(tgCheck);
-	while (tgCheck != begin) {
+	while (tgCheck != begin && dPath.size() < maxDPath) {
 		tgCheck = (*dnItEnd).previousTGroup;
 		dnItEnd = std::find(nList.begin(), nList.end(), tgCheck);
 		dPath.push_back(tgCheck);

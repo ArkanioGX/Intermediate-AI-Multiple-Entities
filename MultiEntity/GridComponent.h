@@ -9,6 +9,8 @@
 static constexpr int gridSizeX = 16;
 static constexpr int gridSizeY = 9;
 
+static constexpr int maxDPath = 100;
+
 static constexpr int nodeGridSize = 8;
 
 static constexpr Color colorDebugGroup[5] = { GREEN,YELLOW,BLUE,GOLD,VIOLET };
