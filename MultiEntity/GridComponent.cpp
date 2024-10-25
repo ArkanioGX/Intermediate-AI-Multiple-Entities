@@ -58,12 +58,8 @@ GridComponent::GridComponent(Actor* owner):
 			grid[i][j]->updateDijkstra();
 		}
 	}
-	std::vector<tGroup*> dp = getDijkstraPath(tGroupsList[0], tGroupsList[tGroupsList.size() - 1]);
-	for (int i = 0; i < dp.size(); i++) {
-		for (int j = 0; j < dp[i]->tiles.size(); j++) {
-			dp[i]->tiles[j]->debugColor = GOLD;
-		}
-	}
+
+	
 }
 
 Node* GridComponent::getNodeAt(int x, int y)
@@ -199,16 +195,11 @@ void GridComponent::update(float dt)
 
 		
 	}
-	if (IsMouseButtonDown(2)) {
-		tGroup* cg = currentTile->currentGroup;
-		for (Tile* t: cg->tiles)
-		{
-			t->debugColor = GREEN;
-		}
-		for (tGroup* cg2 : cg->tileGroupNearby) {
-			for (Tile* t : cg2->tiles)
-			{
-				t->debugColor = GREEN;
+	if (IsMouseButtonPressed(2)) {
+		std::vector<tGroup*> dp = getDijkstraPath(tGroupsList[0], tGroupsList[tGroupsList.size() - 1]);
+		for (int i = 0; i < dp.size(); i++) {
+			for (int j = 0; j < dp[i]->tiles.size(); j++) {
+				dp[i]->tiles[j]->debugColor = GOLD;
 			}
 		}
 	}
