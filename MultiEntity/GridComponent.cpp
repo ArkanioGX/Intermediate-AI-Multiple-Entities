@@ -58,6 +58,12 @@ GridComponent::GridComponent(Actor* owner):
 			grid[i][j]->updateDijkstra();
 		}
 	}
+	std::vector<tGroup*> dp = getDijkstraPath(tGroupsList[0], tGroupsList[tGroupsList.size() - 1]);
+	for (int i = 0; i < dp.size(); i++) {
+		for (int j = 0; j < dp[i]->tiles.size(); j++) {
+			dp[i]->tiles[j]->debugColor = GOLD;
+		}
+	}
 }
 
 Node* GridComponent::getNodeAt(int x, int y)
@@ -65,11 +71,76 @@ Node* GridComponent::getNodeAt(int x, int y)
 	return grid[x][y];
 }
 
-std::vector<tGroup*> GridComponent::getDijkstraPath()
+std::vector<tGroup*> GridComponent::getDijkstraPath(tGroup* begin, tGroup* end)
 {
+	std::vector<std::vector<dijkstraNode>::iterator> openNodeList;
+	std::vector<dijkstraNode> nList;
+	
+	for (int i = 0; i < tGroupsList.size(); i++) {
+		dijkstraNode dNode = dijkstraNode();
+		dNode.currentTGroup = tGroupsList[i];
+		dNode.id = i;
+		nList.push_back(dNode);
+		
+
+	}
+	for (int i = 0; i < nList.size(); i++) {
+		openNodeList.push_back(nList.begin() + i);
+	}
+	std::vector<dijkstraNode>::iterator dnIt = std::find(nList.begin(), nList.end(), begin);
+	(*dnIt).dist = 0;
+	while (!openNodeList.empty()) {
+		std::vector<std::vector<dijkstraNode>::iterator>::iterator minItTemp = openNodeList.begin() + searchMin(openNodeList);
+		std::vector<dijkstraNode>::iterator minIt = (*minItTemp);
+		openNodeList.erase(minItTemp);
+		
+		for (int i = 0; i < (*minIt).currentTGroup->tileGroupNearby.size(); i++) {
+			tGroup* tgDistCheck = (*minIt).currentTGroup->tileGroupNearby[i];
+			std::vector<dijkstraNode>::iterator dnDist = std::find(nList.begin(), nList.end(), tgDistCheck);
+			int distAlt = (*minIt).dist + 1;
+			if (distAlt < (*dnDist).dist) {
+				(*dnDist).dist = distAlt;
+				(*dnDist).previousTGroup = (*minIt).currentTGroup;
+			}
+		}
+	}
+
 	std::vector<tGroup*> dPath;
 
+	std::vector<dijkstraNode>::iterator dnItEnd = std::find(nList.begin(), nList.end(), end);
+	tGroup* tgCheck = (*dnItEnd).currentTGroup;
+	dPath.push_back(tgCheck);
+	while (tgCheck != begin) {
+		tgCheck = (*dnItEnd).previousTGroup;
+		dnItEnd = std::find(nList.begin(), nList.end(), tgCheck);
+		dPath.push_back(tgCheck);
+	}
 	return dPath;
+}
+
+int GridComponent::searchMin(std::vector<std::vector<dijkstraNode>::iterator> list) {
+	int minIt = 0;
+	for (int i = 1; i < list.size();  i++) {
+		if ((*list[minIt]).dist >(*list[i]).dist) {
+			minIt = i;
+		}
+	}
+	return minIt;
+
+}
+
+void GridComponent::addTGroup(tGroup* tg)
+{
+	tGroupsList.push_back(tg);
+}
+
+void GridComponent::removeTGroup(tGroup* tg)
+{
+	std::vector<tGroup*>::iterator it = std::find(tGroupsList.begin(), tGroupsList.end(), tg);
+	while (it != tGroupsList.end()) {
+		tGroupsList.erase(it);
+		it = std::find(tGroupsList.begin(), tGroupsList.end(), tg);
+	}
 }
 
 std::vector<Tile*> GridComponent::getTiles()
@@ -191,6 +262,8 @@ void Node::updateDijkstra()
 				tg->tileGroupNearby.erase(std::remove(tg->tileGroupNearby.begin(), tg->tileGroupNearby.end(), currentTGroup), tg->tileGroupNearby.end());
 			}
 		}
+		
+		owner->removeTGroup(currentTGroup);
 		delete currentTGroup;
 		tGroups.pop_back();
 	}
@@ -259,7 +332,7 @@ void Node::updateDijkstra()
 						int tPosY = t->localY + i;
 						if (tPosY >= 0 && tPosY < nodeGridSize) {
 							Tile* neighborTile = neighborNode->getTileAt(tPosX, tPosY);
-							if (neighborTile->state > 1) {
+							if (neighborTile->state > 1 && std::find(currentTGroup->tileGroupNearby.begin(), currentTGroup->tileGroupNearby.end(), neighborTile->currentGroup) == currentTGroup->tileGroupNearby.end()) {
 								currentTGroup->tileGroupNearby.push_back(neighborTile->currentGroup);
 								neighborTile->currentGroup->tileGroupNearby.push_back(currentTGroup);
 							}
@@ -277,7 +350,7 @@ void Node::updateDijkstra()
 						int tPosX = int(nodeGridSize + t->localX + t->side.x) % nodeGridSize;
 						int tPosY = int(nodeGridSize + t->localY + t->side.y) % nodeGridSize;
 						Tile* neighborTile = neighborNode->getTileAt(tPosX, tPosY);
-						if (neighborTile->state > 1) {
+						if (neighborTile->state > 1 && std::find(currentTGroup->tileGroupNearby.begin(), currentTGroup->tileGroupNearby.end(), neighborTile->currentGroup) == currentTGroup->tileGroupNearby.end()) {
 							currentTGroup->tileGroupNearby.push_back(neighborTile->currentGroup);
 							neighborTile->currentGroup->tileGroupNearby.push_back(currentTGroup);
 						}
@@ -298,7 +371,7 @@ void Node::updateDijkstra()
 						int tPosY = int(nodeGridSize + t->localY + t->side.y) % nodeGridSize;
 						if (tPosX >= 0 && tPosX < nodeGridSize) {
 							Tile* neighborTile = neighborNode->getTileAt(tPosX, tPosY);
-							if (neighborTile->state > 1) {
+							if (neighborTile->state > 1 && std::find(currentTGroup->tileGroupNearby.begin(), currentTGroup->tileGroupNearby.end(), neighborTile->currentGroup) == currentTGroup->tileGroupNearby.end()) {
 								currentTGroup->tileGroupNearby.push_back(neighborTile->currentGroup);
 								neighborTile->currentGroup->tileGroupNearby.push_back(currentTGroup);
 							}
@@ -308,6 +381,7 @@ void Node::updateDijkstra()
 			}
 		}
 		tGroups.push_back(currentTGroup);
+		owner->addTGroup(currentTGroup);
 
 		tileGroup.clear();
 		sideTileGroup.clear();

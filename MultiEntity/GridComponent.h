@@ -4,6 +4,8 @@
 #include "raymath.h"
 #include <vector>
 
+#define inf std::numeric_limits<int>::max()
+
 static constexpr int gridSizeX = 16;
 static constexpr int gridSizeY = 9;
 
@@ -43,6 +45,16 @@ struct tGroup {
 	bool isNull() { return (tiles.size() == 0 && tileGroupNearby.size() == 0); }
 };
 
+struct dijkstraNode {
+	tGroup* currentTGroup;
+	int dist = inf;
+	tGroup* previousTGroup = nullptr;
+	int id;
+
+	bool operator== (tGroup* dn) { return currentTGroup == dn; };
+	bool operator== (const dijkstraNode& dn) { return id == dn.id; };
+};
+
 
 struct Node {
 public:
@@ -71,9 +83,13 @@ public:
 	int getGridWidth() { return gridSizeX; }
 	int getGridHeight() { return gridSizeY; }
 
-	std::vector<tGroup*> getDijkstraPath();
+	std::vector<tGroup*> getDijkstraPath(tGroup* begin, tGroup* end);
+	int searchMin(std::vector<std::vector<dijkstraNode>::iterator> list);
 
 	int getInternalGridSize() { return nodeGridSize; }
+
+	void addTGroup(tGroup* tg);
+	void removeTGroup(tGroup* tg);
 
 	std::vector<Tile*> getTiles();
 
