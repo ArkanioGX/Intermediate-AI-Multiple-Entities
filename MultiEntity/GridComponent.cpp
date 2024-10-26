@@ -5,10 +5,16 @@
 #include "Actor.h"
 #include "Game.h"
 #include "DebugManager.h"
+#include "BoidGroupManager.h"
+#include <algorithm> 
+
+GridComponent* GridComponent::instance = nullptr;
 
 GridComponent::GridComponent(Actor* owner):
 	Component(owner)
 {
+	instance = this;
+
 	for (int i = 0; i < gridSizeX ;i++) {
 		for (int j = 0; j < gridSizeY; j++) {
 			Node* newNode= new Node();
@@ -65,6 +71,31 @@ GridComponent::GridComponent(Actor* owner):
 Node* GridComponent::getNodeAt(int x, int y)
 {
 	return grid[x][y];
+}
+
+Tile* GridComponent::getTileAtWorldPos(Vector2 p)
+{
+	//Get Node and Tile Hovered
+	Vector2 mousePos = p;
+	Vector2 res = Game::instance().resolution;
+	float totalXGridSize = res.x / gridSizeX;
+	float totalYGridSize = res.y / gridSizeY;
+	Vector2 currentNodeHovered = Vector2{ floorf(mousePos.x / totalXGridSize),floorf(mousePos.y / totalYGridSize) };
+	currentNodeHovered = Vector2Clamp(currentNodeHovered, Vector2Zero(), Vector2{ gridSizeX - 1,gridSizeY - 1 });
+
+	Vector2 mousePosInNode = Vector2Add(mousePos, Vector2{ -totalXGridSize * currentNodeHovered.x,-totalYGridSize * currentNodeHovered.y });
+	mousePosInNode = Vector2Clamp(mousePosInNode, Vector2Zero(), Vector2{ totalXGridSize - 1,totalYGridSize - 1 });
+	//std::cout << " mouse x in Node : " << mousePosInNode.x << std::endl;
+
+
+
+	Node* currentNode = getNodeAt(currentNodeHovered.x, currentNodeHovered.y);
+	float totalXTileSize = totalXGridSize / nodeGridSize;
+	float totalYTileSize = totalYGridSize / nodeGridSize;
+
+	currentTileHovered = Vector2{ floorf(mousePosInNode.x / totalXTileSize),floorf(mousePosInNode.y / totalYTileSize) };
+	Tile* currentTile = currentNode->getTileAt(currentTileHovered.x, currentTileHovered.y);
+	return currentTile;
 }
 
 std::vector<tGroup*> GridComponent::getDijkstraPath(tGroup* begin, tGroup* end)
@@ -202,6 +233,10 @@ std::vector<Tile*> GridComponent::getAStarPath(Tile* begin, Tile* end) {
 	return aPath;
 }
 
+std::vector<Vector2> GridComponent::getPath() {
+	return getPath(tileList[250], tileList[4800]);
+}
+
 std::vector<Vector2> GridComponent::getPath(Tile* begin, Tile* end)
 {
 	Vector2 res = Game::instance().resolution;
@@ -314,12 +349,13 @@ void GridComponent::update(float dt)
 	}
 	
 	if (IsKeyPressed(KEY_A)) {
-		beginPath = currentTile;
-		currentTile->debugColor = GREEN;
-	}
-	if (IsKeyPressed(KEY_Z)) {
-		endPath = currentTile;
-		currentTile->debugColor = DARKGREEN;
+		if (!IsMouseButtonDown(2)) {
+			for (BoidComponent* bc : bListSelected)
+			{
+				bc->setDestination(currentTile);
+			}
+		}
+		
 	}
 
 	if (IsMouseButtonReleased(0) || IsMouseButtonReleased(1)) {
@@ -333,31 +369,22 @@ void GridComponent::update(float dt)
 		
 	}
 	if (IsMouseButtonPressed(2)) {
-		/*
-		std::vector<tGroup*> dp = getDijkstraPath(tGroupsList[0], tGroupsList[tGroupsList.size() - 1]);
-		for (int i = 0; i < dp.size(); i++) {
-			for (int j = 0; j < dp[i]->tiles.size(); j++) {
-				dp[i]->tiles[j]->debugColor = GOLD;
-			}
-		}*/
-
-		std::vector<Vector2> dp = getPath(beginPath,endPath);
-		for (int i = 0; i < dp.size(); i++) {
-			float xOffset = totalXTileSize / 2;
-			float yOffset = totalYTileSize / 2;
-			if (i < dp.size() - 1) {
-				DebugManager::instance().addLine(Vector2{ float(dp[i].x),float(dp[i].y) }, Vector2{ float(dp[i + 1].x),float(dp[i + 1].y) });
-			}
-			
-		}
+		currentBoidGridBegin = GetMousePosition();
 	}
 	if (IsMouseButtonReleased(2)) {
-		for (int i = 0; i < gridSizeX; i++) {
-			for (int j = 0; j < gridSizeY; j++) {
-				for (int k = 0; k < nodeGridSize; k++) {
-					for (int l = 0; l < nodeGridSize; l++) {
-						grid[i][j]->getTileAt(k, l)->debugColor = RED;
-					}
+		bListSelected.clear();
+		Vector2 firstPos = currentBoidGridBegin;
+		Vector2 secondPos = GetMousePosition();
+		currentBoidGridBegin = Vector2{ std::min(firstPos.x,secondPos.x),std::min(firstPos.y,secondPos.y) };
+		currentBoidGridEnd = Vector2{ std::max(firstPos.x,secondPos.x),std::max(firstPos.y,secondPos.y) };
+		currentBoidGridBegin = BoidGroupManager::Instance()->getGridPos(currentBoidGridBegin);
+		currentBoidGridEnd = BoidGroupManager::Instance()->getGridPos(currentBoidGridEnd);
+		for (int i = currentBoidGridBegin.x; i < currentBoidGridEnd.x; i++) {
+			for (int j = currentBoidGridBegin.y; j < currentBoidGridEnd.y; j++) {
+				for (BoidActor* ba : BoidGroupManager::Instance()->getBoidsInGrid(Vector2{ float(i),float(j) }))
+				{
+					BoidComponent* bc = ba->getComponent<BoidComponent*>();
+					bListSelected.push_back(bc);
 				}
 			}
 		}

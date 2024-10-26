@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include <vector>
 
+
 #define inf std::numeric_limits<int>::max()
 
 static constexpr int gridSizeX = 16;
@@ -88,14 +89,23 @@ class GridComponent : public Component
 {
 public:
 
+	static GridComponent* Instance()
+	{
+		return instance;
+	}
+
 	GridComponent(class Actor* owner);
 	Node* getNodeAt(int x, int y);
+
+	Tile* getTileAtWorldPos(Vector2 p);
+
 	int getGridWidth() { return gridSizeX; }
 	int getGridHeight() { return gridSizeY; }
 
 	std::vector<tGroup*> getDijkstraPath(tGroup* begin, tGroup* end);
 	std::vector<Tile*> getAStarPath(Tile* begin, Tile* end);
 	std::vector<Vector2> getPath(Tile* begin, Tile* end);
+	std::vector<Vector2> getPath();
 	bool hasSamePos(AStarTile at1, AStarTile at2);
 	int ifIsInListViaPos(AStarTile value, std::vector<AStarTile> list);
 	int searchMin(std::vector<AStarTile> list);
@@ -108,15 +118,19 @@ public:
 
 	std::vector<Tile*> getTiles();
 
-	Tile* beginPath;
-	Tile* endPath;
+	
 
 	void update(float dt) override;
 
 private:
 
+	static GridComponent* instance;
+
 	Vector2 currentTileHovered;
 	Vector2 currentNodeHovered;
+
+	Vector2 currentBoidGridBegin;
+	Vector2 currentBoidGridEnd;
 
 	Node* grid[gridSizeX][gridSizeY];
 	std::vector<Tile*> tileList;
@@ -125,5 +139,7 @@ private:
 	std::vector<Node*> nodeSelected;
 
 	std::vector<tGroup*> tGroupsList;
+
+	std::vector<class BoidComponent*> bListSelected;
 };
 

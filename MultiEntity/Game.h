@@ -18,6 +18,8 @@ public:
 		return inst;
 	}
 
+	std::vector<class BoidActor*> boidList;
+
 	Game();
 
 	Vector2 resolution;

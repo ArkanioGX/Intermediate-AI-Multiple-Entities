@@ -48,6 +48,15 @@
     <ClCompile Include="DebugManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BoidActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoidComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoidGroupManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -79,6 +88,15 @@
     </ClInclude>
     <ClInclude Include="DebugManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoidActor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoidComponent.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoidGroupManager.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

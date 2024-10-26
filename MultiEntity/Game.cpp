@@ -7,6 +7,7 @@
 #include "raymath.h"
 #include "GridActor.h"
 #include "DebugManager.h"
+#include "BoidActor.h"
 
 
 
@@ -16,11 +17,29 @@ Game::Game()
 
 void Game::load()
 {
+	Assets::instance().addTexture("Images/BoidSprite.png", "Boid");
+
 	resolution = Vector2{ float(GetRenderWidth()),float(GetRenderHeight()) };
 	Assets::addTexture("Images/background.png", "background");
 	background = Assets::getTexture("background");
 
 	GridActor* ga = new GridActor();
+
+	int boidCount = 100;
+	float PlaceOffsetX = 1920 / (boidCount + 1);
+	float PlaceOffsetY = 1080 / (boidCount + 1);
+
+	//ObstacleActor* Obstacle = new ObstacleActor();
+	//Obstacle->setPosition(Vector2{ 200,200 });
+	//Obstacle->setScale(Vector2{ 5,5 });
+
+	for (int i = 0; i < boidCount; i++) {
+		Vector2 newPos = Vector2{ float(GetRandomValue(0,1920)),float(GetRandomValue(0,1080)) };
+		BoidActor* boid = new BoidActor();
+		boid->setPosition(newPos);
+		boid->setScale(Vector2{ 1,1 });
+		boidList.push_back(boid);
+	}
 }
 
 void Game::loop()
