@@ -114,6 +114,104 @@ std::vector<tGroup*> GridComponent::getDijkstraPath(tGroup* begin, tGroup* end)
 	return dPath;
 }
 
+std::vector<Tile*> GridComponent::getAStarPath(Tile* begin, Tile* end) {
+	std::vector<AStarTile*> openList = std::vector<AStarTile*>();
+	std::vector<AStarTile*> closedList = std::vector<AStarTile*>();
+	std::vector<std::vector<AStarTile*>> map(gridSizeX*nodeGridSize,std::vector<AStarTile*>(gridSizeY * nodeGridSize, nullptr));;
+	std::vector<tGroup*> dPath = getDijkstraPath(begin->currentGroup, end->currentGroup);
+	std::vector<Tile*> aPath = std::vector<Tile*>();
+	if (dPath.size() == maxDPath) { return std::vector<Tile*>(); }
+	//Node map initialization
+	for (tGroup* tg : dPath) {
+		for (Tile* t : tg->tiles) {
+			AStarTile* at = new AStarTile();
+			at->x = t->x;
+			at->y = t->y;
+			at->g = 0;
+			at->h = 0;
+			at->f = inf;
+			at->parent = nullptr;
+			map[t->x][t->y] = at;
+			at->current = t;
+
+			t->debugColor = GOLD;
+		}
+	}
+	AStarTile* beginTile = map[begin->x][begin->y];
+	beginTile->f = 0;
+	AStarTile* endTile = map[end->x][end->y];
+
+	openList.push_back(beginTile);
+	while (!openList.empty()) {
+		AStarTile* currentTile = searchMin(openList);
+		openList.erase(std::find(openList.begin(), openList.end(), currentTile));
+		closedList.push_back(currentTile);
+
+		if (currentTile == endTile) {
+			AStarTile* path = endTile;
+			while (path != beginTile) {
+				Vector2 p = Vector2{ float(path->x),float(path->y) };
+				aPath.push_back(path->current);
+				path = path->parent;
+			}
+			return aPath;
+		}
+		std::vector<AStarTile*> nearbyTile = std::vector<AStarTile*>();
+		int minx = Clamp(currentTile->x - 1, 0, map.size());
+		int maxx = Clamp(currentTile->x + 1, 0, map.size());
+		int miny = Clamp(currentTile->y - 1, 0, map[0].size());
+		int maxy = Clamp(currentTile->y + 1, 0, map[0].size());
+		for (int x = minx; x <= maxx; x++) {
+			for (int y = miny; y <= maxy; y++) {
+				if (map[x][y] != nullptr && std::find(closedList.begin(), closedList.end(), map[x][y]) == closedList.end()) {
+					map[x][y]->parent = currentTile;
+					nearbyTile.push_back(map[x][y]);
+				}
+			}
+		}
+
+		for (AStarTile* at : nearbyTile) {
+			if (std::find(closedList.begin(), closedList.end(), at) != closedList.end()) {
+				continue;
+			}
+			at->g = at->g + Vector2Distance(Vector2{ float(at->x),float(at->y) }, Vector2{ float(at->parent->x),float(at->parent->y) });
+			at->h = Vector2Distance(Vector2{ float(at->x),float(at->y) }, Vector2{ float(endTile->x),float(endTile->y) });
+			at->f = at->h + at->g;
+
+			if (ifIsInListViaPos(at,openList) != -1) {
+				if (openList[ifIsInListViaPos(at, openList)]->g < at->g) {
+					continue;
+				}
+			}
+			openList.push_back(at);
+		}
+	}
+	return aPath;
+}
+
+int GridComponent::ifIsInListViaPos(AStarTile* value, std::vector<AStarTile*> list) {
+	for (int i = 0; i < list.size(); i++) {
+		if (value->x == list[i]->x && value->y == list[i]->y) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+
+AStarTile* GridComponent::searchMin(std::vector<AStarTile*>& list) {
+	int fMin = 0;
+
+	for (int j = 0; j < list.size(); j++) {
+		if (list[j]->f < list[fMin]->f)
+		{
+			fMin = j;
+		}
+	}
+	return list[fMin];
+}
+
 int GridComponent::searchMin(std::vector<std::vector<dijkstraNode>::iterator> list) {
 	int minIt = 0;
 	for (int i = 1; i < list.size();  i++) {
@@ -185,6 +283,15 @@ void GridComponent::update(float dt)
 
 	}
 	
+	if (IsKeyPressed(KEY_A)) {
+		beginPath = currentTile;
+		currentTile->debugColor = GREEN;
+	}
+	if (IsKeyPressed(KEY_Z)) {
+		endPath = currentTile;
+		currentTile->debugColor = DARKGREEN;
+	}
+
 	if (IsMouseButtonReleased(0) || IsMouseButtonReleased(1)) {
 		while (!nodeSelected.empty()) {
 			nodeSelected.back()->debugColor = RED;
@@ -196,11 +303,17 @@ void GridComponent::update(float dt)
 		
 	}
 	if (IsMouseButtonPressed(2)) {
+		/*
 		std::vector<tGroup*> dp = getDijkstraPath(tGroupsList[0], tGroupsList[tGroupsList.size() - 1]);
 		for (int i = 0; i < dp.size(); i++) {
 			for (int j = 0; j < dp[i]->tiles.size(); j++) {
 				dp[i]->tiles[j]->debugColor = GOLD;
 			}
+		}*/
+
+		std::vector<Tile*> dp = getAStarPath(beginPath,endPath);
+		for (int i = 0; i < dp.size(); i++) {
+			dp[i]->debugColor = DARKBLUE;
 		}
 	}
 	if (IsMouseButtonReleased(2)) {
