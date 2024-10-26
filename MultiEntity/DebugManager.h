@@ -10,10 +10,18 @@ struct RectangleDebug {
 	bool fill;
 };
 
+struct LineDebug {
+	Vector2 pos;
+	Vector2 pos2;
+	Color col;
+};
+
+
 class DebugManager
 {
 private:
 	std::vector<RectangleDebug> rectList;
+	std::vector<LineDebug> lineList;
 
 public:
 
@@ -25,6 +33,6 @@ public:
 	void draw();
 
 	void addRectangle(Vector2 pos, Vector2 size, Color col = GREEN, bool isFilled = false);
-
+	void addLine(Vector2 pos, Vector2 pos2, Color col = GREEN);
 };
 

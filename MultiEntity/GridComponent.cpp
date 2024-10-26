@@ -115,9 +115,9 @@ std::vector<tGroup*> GridComponent::getDijkstraPath(tGroup* begin, tGroup* end)
 }
 
 std::vector<Tile*> GridComponent::getAStarPath(Tile* begin, Tile* end) {
-	std::vector<AStarTile*> openList = std::vector<AStarTile*>();
-	std::vector<AStarTile*> closedList = std::vector<AStarTile*>();
-	std::vector<std::vector<AStarTile*>> map(gridSizeX*nodeGridSize,std::vector<AStarTile*>(gridSizeY * nodeGridSize, nullptr));;
+	std::vector<AStarTile> openList = std::vector<AStarTile>();
+	std::vector<AStarTile> closedList = std::vector<AStarTile>();
+	std::vector<std::vector<AStarTile*>> map(gridSizeX*nodeGridSize,std::vector<AStarTile*>(gridSizeY * nodeGridSize,nullptr));;
 	std::vector<tGroup*> dPath = getDijkstraPath(begin->currentGroup, end->currentGroup);
 	std::vector<Tile*> aPath = std::vector<Tile*>();
 	if (dPath.size() == maxDPath) { return std::vector<Tile*>(); }
@@ -131,67 +131,97 @@ std::vector<Tile*> GridComponent::getAStarPath(Tile* begin, Tile* end) {
 			at->h = 0;
 			at->f = inf;
 			at->parent = nullptr;
-			map[t->x][t->y] = at;
 			at->current = t;
+			at->isWalkable = true;
+			map[t->x][t->y] = at;
+			
 
 			t->debugColor = GOLD;
 		}
 	}
+	map[begin->x][begin->y]->f = 0;
 	AStarTile* beginTile = map[begin->x][begin->y];
-	beginTile->f = 0;
 	AStarTile* endTile = map[end->x][end->y];
 
-	openList.push_back(beginTile);
+	openList.push_back(*beginTile);
 	while (!openList.empty()) {
-		AStarTile* currentTile = searchMin(openList);
-		openList.erase(std::find(openList.begin(), openList.end(), currentTile));
+		int minID = searchMin(openList);
+		AStarTile currentTile = openList[minID];
+		currentTile.current->debugColor = PURPLE;
+		openList.erase(openList.begin() + minID);
 		closedList.push_back(currentTile);
 
-		if (currentTile == endTile) {
-			AStarTile* path = endTile;
-			while (path != beginTile) {
-				Vector2 p = Vector2{ float(path->x),float(path->y) };
-				aPath.push_back(path->current);
-				path = path->parent;
+		if (hasSamePos(currentTile, *map[end->x][end->y])) {
+			AStarTile path = *map[end->x][end->y];
+			while (!hasSamePos(path, *map[begin->x][begin->y])) {
+				Vector2 p = Vector2{ float(path.x),float(path.y) };
+				aPath.push_back(path.current);
+				path = *path.parent;
 			}
+			aPath.push_back(path.current);
 			return aPath;
 		}
-		std::vector<AStarTile*> nearbyTile = std::vector<AStarTile*>();
-		int minx = Clamp(currentTile->x - 1, 0, map.size());
-		int maxx = Clamp(currentTile->x + 1, 0, map.size());
-		int miny = Clamp(currentTile->y - 1, 0, map[0].size());
-		int maxy = Clamp(currentTile->y + 1, 0, map[0].size());
-		for (int x = minx; x <= maxx; x++) {
-			for (int y = miny; y <= maxy; y++) {
-				if (map[x][y] != nullptr && std::find(closedList.begin(), closedList.end(), map[x][y]) == closedList.end()) {
-					map[x][y]->parent = currentTile;
-					nearbyTile.push_back(map[x][y]);
+		std::vector<AStarTile> nearbyTile = std::vector<AStarTile>();
+		int minx = Clamp(currentTile.x - 1, 0, map.size());
+		int maxx = Clamp(currentTile.x + 1, 0, map.size());
+		int miny = Clamp(currentTile.y - 1, 0, map[0].size());
+		int maxy = Clamp(currentTile.y + 1, 0, map[0].size());
+		for (int xp = minx; xp <= maxx; xp++) {
+			for (int yp = miny; yp <= maxy; yp++) {
+				AStarTile* atg = map[xp][yp];
+				if (atg!= nullptr){
+					if (ifIsInListViaPos(*atg, closedList) == -1) {
+						atg->parent = map[currentTile.x][currentTile.y];
+						nearbyTile.push_back(*atg);
+					}
 				}
 			}
 		}
 
-		for (AStarTile* at : nearbyTile) {
-			if (std::find(closedList.begin(), closedList.end(), at) != closedList.end()) {
+		for (AStarTile at : nearbyTile) {
+			if (ifIsInListViaPos(at,closedList) != -1) {
 				continue;
 			}
-			at->g = at->g + Vector2Distance(Vector2{ float(at->x),float(at->y) }, Vector2{ float(at->parent->x),float(at->parent->y) });
-			at->h = Vector2Distance(Vector2{ float(at->x),float(at->y) }, Vector2{ float(endTile->x),float(endTile->y) });
-			at->f = at->h + at->g;
+
+			at.g = at.g + Vector2Distance(Vector2{ float(at.x),float(at.y) }, Vector2{ float(at.parent->x),float(at.parent->y) });
+			at.h = Vector2Distance(Vector2{ float(at.x),float(at.y) }, Vector2{ float(endTile->x),float(endTile->y) });
+			at.f = at.h + at.g;
 
 			if (ifIsInListViaPos(at,openList) != -1) {
-				if (openList[ifIsInListViaPos(at, openList)]->g < at->g) {
+				if (openList[ifIsInListViaPos(at, openList)].g < at.g) {
 					continue;
 				}
+				openList.erase(openList.begin() + ifIsInListViaPos(at, openList));
 			}
+			map[at.x][at.y]->g = at.g;
+			map[at.x][at.y]->h = at.h;
+			map[at.x][at.y]->f = at.f;
 			openList.push_back(at);
 		}
 	}
 	return aPath;
 }
 
-int GridComponent::ifIsInListViaPos(AStarTile* value, std::vector<AStarTile*> list) {
+std::vector<Vector2> GridComponent::getPath(Tile* begin, Tile* end)
+{
+	Vector2 res = Game::instance().resolution;
+	float totalXTileSize = res.x / gridSizeX / nodeGridSize;
+	float totalYTileSize = res.y / gridSizeY / nodeGridSize;
+	std::vector<Vector2> p;
+	std::vector<Tile*> ap = getAStarPath(begin, end);
+	for (Tile* t : ap) {
+		p.push_back(Vector2{(t->x+0.5f) * totalXTileSize, (t->y + 0.5f) * totalYTileSize});
+	}
+	return p;
+}
+
+bool GridComponent::hasSamePos(AStarTile at1, AStarTile at2) {
+	return (at1.x == at2.x && at1.y == at2.y);
+}
+
+int GridComponent::ifIsInListViaPos(AStarTile value, std::vector<AStarTile> list) {
 	for (int i = 0; i < list.size(); i++) {
-		if (value->x == list[i]->x && value->y == list[i]->y) {
+		if (value.x == list[i].x && value.y == list[i].y) {
 			return i;
 		}
 	}
@@ -200,16 +230,16 @@ int GridComponent::ifIsInListViaPos(AStarTile* value, std::vector<AStarTile*> li
 
 
 
-AStarTile* GridComponent::searchMin(std::vector<AStarTile*>& list) {
+int GridComponent::searchMin(std::vector<AStarTile> list) {
 	int fMin = 0;
 
-	for (int j = 0; j < list.size(); j++) {
-		if (list[j]->f < list[fMin]->f)
+	for (int j = 1; j < list.size(); j++) {
+		if (list[j].f < list[fMin].f)
 		{
 			fMin = j;
 		}
 	}
-	return list[fMin];
+	return fMin;
 }
 
 int GridComponent::searchMin(std::vector<std::vector<dijkstraNode>::iterator> list) {
@@ -311,9 +341,14 @@ void GridComponent::update(float dt)
 			}
 		}*/
 
-		std::vector<Tile*> dp = getAStarPath(beginPath,endPath);
+		std::vector<Vector2> dp = getPath(beginPath,endPath);
 		for (int i = 0; i < dp.size(); i++) {
-			dp[i]->debugColor = DARKBLUE;
+			float xOffset = totalXTileSize / 2;
+			float yOffset = totalYTileSize / 2;
+			if (i < dp.size() - 1) {
+				DebugManager::instance().addLine(Vector2{ float(dp[i].x),float(dp[i].y) }, Vector2{ float(dp[i + 1].x),float(dp[i + 1].y) });
+			}
+			
 		}
 	}
 	if (IsMouseButtonReleased(2)) {

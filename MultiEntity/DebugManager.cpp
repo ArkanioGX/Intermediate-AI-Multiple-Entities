@@ -11,6 +11,10 @@ void DebugManager::draw()
 		}
 	}
 	rectList.clear();
+	for (LineDebug ld : lineList) {
+		DrawLine(ld.pos.x, ld.pos.y, ld.pos2.x, ld.pos2.y, ld.col);
+	}
+	lineList.clear();
 }
 
 void DebugManager::addRectangle(Vector2 pos, Vector2 size, Color col, bool isFilled)
@@ -22,5 +26,16 @@ void DebugManager::addRectangle(Vector2 pos, Vector2 size, Color col, bool isFil
 	rd.col = col;
 	rd.fill = isFilled;
 	rectList.push_back(rd);
+#endif
+}
+
+void DebugManager::addLine(Vector2 pos, Vector2 pos2, Color col)
+{
+#if _DEBUG
+	LineDebug rd;
+	rd.pos = pos;
+	rd.pos2 = pos2;
+	rd.col = col;
+	lineList.push_back(rd);
 #endif
 }

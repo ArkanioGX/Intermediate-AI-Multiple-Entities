@@ -78,7 +78,7 @@ public:
 
 struct AStarTile {
 	bool isWalkable = false;
-	int g = 0, h = 0, f = 0;
+	float g = 0, h = 0, f = 0;
 	int x, y;
 	AStarTile* parent;
 	Tile* current;
@@ -95,8 +95,10 @@ public:
 
 	std::vector<tGroup*> getDijkstraPath(tGroup* begin, tGroup* end);
 	std::vector<Tile*> getAStarPath(Tile* begin, Tile* end);
-	int ifIsInListViaPos(AStarTile* value, std::vector<AStarTile*> list);
-	AStarTile* searchMin(std::vector<AStarTile*>& list);
+	std::vector<Vector2> getPath(Tile* begin, Tile* end);
+	bool hasSamePos(AStarTile at1, AStarTile at2);
+	int ifIsInListViaPos(AStarTile value, std::vector<AStarTile> list);
+	int searchMin(std::vector<AStarTile> list);
 	int searchMin(std::vector<std::vector<dijkstraNode>::iterator> list);
 
 	int getInternalGridSize() { return nodeGridSize; }
