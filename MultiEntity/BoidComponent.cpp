@@ -9,6 +9,7 @@
 #include "BoidGroupManager.h"
 #include "TextureComponent.h"
 #include "GridComponent.h"
+#include "DebugManager.h"
 
 #include <utility>
 #include <type_traits>
@@ -17,7 +18,7 @@ BoidComponent::BoidComponent(Actor* owner):
 	Component(owner)
 {
 	forward = Vector2Normalize(Vector2Subtract(getOwner()->getPosition(), Vector2{ 400,400 }));
-	
+	tc = getOwner()->getComponent<TextureComponent*>();
 	//currentPath.clear();
 	//currentPath = GridComponent::Instance()->getPath();
 }
@@ -70,6 +71,11 @@ void BoidComponent::update(float dt)
 	getOwner()->angle = Vector2Angle(Vector2{ 1,0 }, forward)*180/M_PI;
 }
 
+void BoidComponent::setColor(Color c)
+{
+	tc->color = c;
+}
+
 void BoidComponent::setDestination(Tile* d)
 {
 	Tile* b = GridComponent::Instance()->getTileAtWorldPos(getOwner()->getPosition());
@@ -116,7 +122,13 @@ Vector2 BoidComponent::FollowPath()
 		if (currentPath.size() != 1) {
 			currentPath.pop_back();
 		}
+		
 	}
+
+	for (int i = 0; i < currentPath.size() - 1; i++) {
+		DebugManager::instance().addLine(currentPath[i], currentPath[i + 1], GOLD, false);
+	}
+
 	return Vector2Normalize(Vector2Subtract(currentPath.back(), getOwner()->pos));;
 }
 

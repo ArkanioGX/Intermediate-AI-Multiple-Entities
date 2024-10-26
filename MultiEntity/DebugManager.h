@@ -32,7 +32,7 @@ public:
 
 	void draw();
 
-	void addRectangle(Vector2 pos, Vector2 size, Color col = GREEN, bool isFilled = false);
-	void addLine(Vector2 pos, Vector2 pos2, Color col = GREEN);
+	void addRectangle(Vector2 pos, Vector2 size, Color col = GREEN, bool isFilled = false, bool isDebugOnly = true);
+	void addLine(Vector2 pos, Vector2 pos2, Color col = GREEN, bool isDebugOnly = true);
 };
 

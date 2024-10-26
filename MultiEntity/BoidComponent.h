@@ -13,6 +13,8 @@ public:
 
 	void update(float dt) override;
 
+	void setColor(Color c);
+
 	Vector2 getGridParent() { return gridParent; }
 	void setGridParent(Vector2 gp) { gridParent = gp; }
 

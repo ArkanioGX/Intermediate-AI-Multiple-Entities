@@ -78,3 +78,16 @@ std::vector<BoidActor*> BoidGroupManager::getBoidsInGrid(Vector2 gridPos)
     return boidsList;
 }
 
+std::vector<BoidActor*> BoidGroupManager::getAllBoids()
+{
+    std::vector<BoidActor*> boidsList;
+    for (int i = 0; i < GridContent.size(); i++) {
+        for (int j = 0; j < GridContent[0].size(); j++) {
+            for (BoidActor* boid : GridContent[i][j]) {
+                boidsList.push_back(boid);
+            }
+        }
+    }
+    return boidsList;
+}
+

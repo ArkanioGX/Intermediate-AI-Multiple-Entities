@@ -11,6 +11,7 @@ public:
 
 	std::vector<BoidActor*> getBoids(Vector2 gridPos);
 	std::vector<BoidActor*> getBoidsInGrid(Vector2 gridPos);
+	std::vector<BoidActor*> getAllBoids();
 
 private:
 	int cellNeighborCheck = 1;

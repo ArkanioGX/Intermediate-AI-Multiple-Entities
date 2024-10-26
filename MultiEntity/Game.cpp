@@ -25,7 +25,7 @@ void Game::load()
 
 	GridActor* ga = new GridActor();
 
-	int boidCount = 100;
+	int boidCount = 500;
 	float PlaceOffsetX = 1920 / (boidCount + 1);
 	float PlaceOffsetY = 1080 / (boidCount + 1);
 
@@ -68,10 +68,12 @@ void Game::draw()
 	for (int i = 0; i < renderComponentList.size(); i++) {
 		renderComponentList[i]->draw();
 	}
-#if _DEBUG
 	DebugManager::instance().draw();
-#endif
-	DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 22, RAYWHITE);
+	DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 22, GREEN);
+	DrawText("[Left Click] to place tile", 10, 32, 22, GREEN);
+	DrawText("[Right Click] to remove tile", 10, 54, 22, GREEN);
+	DrawText("hold [Middle Click] to select boids", 10, 76, 22, GREEN);
+	DrawText("[Q] to give destination to all boids selected", 10, 98, 22, GREEN);
 	EndDrawing();
 }
 

@@ -151,7 +151,7 @@ std::vector<Tile*> GridComponent::getAStarPath(Tile* begin, Tile* end) {
 	std::vector<std::vector<AStarTile*>> map(gridSizeX*nodeGridSize,std::vector<AStarTile*>(gridSizeY * nodeGridSize,nullptr));;
 	std::vector<tGroup*> dPath = getDijkstraPath(begin->currentGroup, end->currentGroup);
 	std::vector<Tile*> aPath = std::vector<Tile*>();
-	if (dPath.size() == maxDPath) { return std::vector<Tile*>(); }
+	if (dPath.size() == maxDPath || begin->state == 1 || end->state == 1 ) { return std::vector<Tile*>(); }
 	//Node map initialization
 	for (tGroup* tg : dPath) {
 		for (Tile* t : tg->tiles) {
@@ -193,10 +193,10 @@ std::vector<Tile*> GridComponent::getAStarPath(Tile* begin, Tile* end) {
 			return aPath;
 		}
 		std::vector<AStarTile> nearbyTile = std::vector<AStarTile>();
-		int minx = Clamp(currentTile.x - 1, 0, map.size());
-		int maxx = Clamp(currentTile.x + 1, 0, map.size());
-		int miny = Clamp(currentTile.y - 1, 0, map[0].size());
-		int maxy = Clamp(currentTile.y + 1, 0, map[0].size());
+		int minx = Clamp(currentTile.x - 1, 0, map.size() - 1);
+		int maxx = Clamp(currentTile.x + 1, 0, map.size() - 1);
+		int miny = Clamp(currentTile.y - 1, 0, map[0].size() - 1);
+		int maxy = Clamp(currentTile.y + 1, 0, map[0].size() - 1);
 		for (int xp = minx; xp <= maxx; xp++) {
 			for (int yp = miny; yp <= maxy; yp++) {
 				AStarTile* atg = map[xp][yp];
@@ -370,6 +370,22 @@ void GridComponent::update(float dt)
 	}
 	if (IsMouseButtonPressed(2)) {
 		currentBoidGridBegin = GetMousePosition();
+		bListSelected.clear();
+		for (BoidActor* ba : BoidGroupManager::Instance()->getAllBoids())
+		{
+			BoidComponent* bc = ba->getComponent<BoidComponent*>();
+			if (bc != nullptr) {
+				bc->setColor(WHITE);
+			}
+			
+		}
+	}
+	if (IsMouseButtonDown(2)) {
+		Vector2 firstPos = currentBoidGridBegin;
+		Vector2 secondPos = GetMousePosition();
+		Vector2 pos = Vector2{ std::min(firstPos.x,secondPos.x),std::min(firstPos.y,secondPos.y) };
+		Vector2 size = Vector2Subtract(Vector2{ std::max(firstPos.x,secondPos.x),std::max(firstPos.y,secondPos.y) },pos);
+		DebugManager::instance().addRectangle(pos,size ,GOLD,false,false);
 	}
 	if (IsMouseButtonReleased(2)) {
 		bListSelected.clear();
@@ -377,15 +393,17 @@ void GridComponent::update(float dt)
 		Vector2 secondPos = GetMousePosition();
 		currentBoidGridBegin = Vector2{ std::min(firstPos.x,secondPos.x),std::min(firstPos.y,secondPos.y) };
 		currentBoidGridEnd = Vector2{ std::max(firstPos.x,secondPos.x),std::max(firstPos.y,secondPos.y) };
-		currentBoidGridBegin = BoidGroupManager::Instance()->getGridPos(currentBoidGridBegin);
-		currentBoidGridEnd = BoidGroupManager::Instance()->getGridPos(currentBoidGridEnd);
-		for (int i = currentBoidGridBegin.x; i < currentBoidGridEnd.x; i++) {
-			for (int j = currentBoidGridBegin.y; j < currentBoidGridEnd.y; j++) {
-				for (BoidActor* ba : BoidGroupManager::Instance()->getBoidsInGrid(Vector2{ float(i),float(j) }))
-				{
-					BoidComponent* bc = ba->getComponent<BoidComponent*>();
-					bListSelected.push_back(bc);
-				}
+		for (BoidActor* ba : BoidGroupManager::Instance()->getAllBoids())
+		{
+			Vector2 p = ba->getPosition();
+			if (p.x > currentBoidGridBegin.x &&
+				p.x < currentBoidGridEnd.x &&
+				p.y > currentBoidGridBegin.y &&
+				p.y < currentBoidGridEnd.y) 
+			{
+				BoidComponent* bc = ba->getComponent<BoidComponent*>();
+				bListSelected.push_back(bc);
+				bc->setColor(GOLD);
 			}
 		}
 	}
